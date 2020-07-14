@@ -1,0 +1,20 @@
+#include "elti/value_wrapper.h"
+#include "util.h"
+
+namespace elti {
+  ValueWrapper::ValueWrapper(Value* v) : v_(v) {
+
+  }
+
+  ValueWrapper ValueWrapper::operator[](const char* attr) {
+    return ValueWrapper(getValueAsMap(v_)->operator[](attr));
+  }
+
+  size_t ValueWrapper::size() const {
+    return getValueAsArray(v_)->getSize();
+  }
+
+  ValueWrapper ValueWrapper::operator[](num index) {
+    return ValueWrapper(getValueAsArray(v_)->operator[](index.n_));
+  }
+}
