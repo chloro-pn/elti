@@ -1,5 +1,6 @@
 #pragma once
 #include "value.h"
+#include "util.h"
 
 namespace elti {
   struct num {

@@ -182,6 +182,11 @@ public:
 
   explicit Data(bool b);
 
+  template<typename T>
+  explicit Data(const T& obj) : Value(ValueType::Data) {
+    seri(obj, data_);
+  }
+
   void valueParse(const char*& begin, size_t& offset) {
     uint64_t size = parseLength(begin, offset);
     data_.resize(size);
@@ -193,10 +198,9 @@ public:
   void valueSeri(std::string& result) {
     uint32_t length = data_.size();
     seriLength(length, result);
-    std::string tmp;
-    tmp.resize(length);
-    memcpy(&(*tmp.begin()), &(data_.front()), length);
-    result.append(tmp);
+    size_t old_len = result.size();
+    result.resize(result.size() + length);
+    memcpy(&(*(result.begin() + old_len)), &data_.front(), length);
   }
 
   void setData(const std::vector<uint8_t>& datas) {
@@ -208,7 +212,6 @@ public:
   }
 
   void setData(const char* ptr) {
-    data_.clear();
     size_t len = strlen(ptr);
     data_.resize(len);
     memcpy(&data_.front(), ptr, len);
@@ -221,49 +224,41 @@ public:
   }
 
   void setData(uint8_t num) {
-    data_.clear();
     data_.resize(sizeof(num));
     memcpy(&data_.front(), &num, sizeof(num));
   }
 
   void setData(uint16_t num) {
-    data_.clear();
     data_.resize(sizeof(num));
     memcpy(&data_.front(), &num, sizeof(num));
   }
 
   void setData(uint32_t num) {
-    data_.clear();
     data_.resize(sizeof(num));
     memcpy(&data_.front(), &num, sizeof(num));
   }
 
   void setData(uint64_t num) {
-    data_.clear();
     data_.resize(sizeof(num));
     memcpy(&data_.front(), &num, sizeof(num));
   }
 
   void setData(int8_t num) {
-    data_.clear();
     data_.resize(sizeof(num));
     memcpy(&data_.front(), &num, sizeof(num));
   }
 
   void setData(int16_t num) {
-    data_.clear();
     data_.resize(sizeof(num));
     memcpy(&data_.front(), &num, sizeof(num));
   }
 
   void setData(int32_t num) {
-    data_.clear();
     data_.resize(sizeof(num));
     memcpy(&data_.front(), &num, sizeof(num));
   }
 
   void setData(int64_t num) {
-    data_.clear();
     data_.resize(sizeof(num));
     memcpy(&data_.front(), &num, sizeof(num));
   }
@@ -272,7 +267,6 @@ public:
     char buf[128];
     unsigned char bytes = 0;
     varint_encode(num.getNum(), buf, sizeof(buf), &bytes);
-    data_.clear();
     data_.resize((size_t)bytes);
     memcpy(&data_.front(), buf, bytes);
   }
@@ -334,28 +328,28 @@ public:
     return tmp;
   }
 
-  uint8_t getint8() {
+  int8_t getint8() {
     assert(data_.size() == sizeof(int8_t));
     int8_t tmp;
     memcpy(&tmp, &data_.front(), data_.size());
     return tmp;
   }
 
-  uint16_t getint16() {
+  int16_t getint16() {
     assert(data_.size() == sizeof(int16_t));
     int16_t tmp;
     memcpy(&tmp, &data_.front(), data_.size());
     return tmp;
   }
 
-  uint32_t getint32() {
+  int32_t getint32() {
     assert(data_.size() == sizeof(int32_t));
     int32_t tmp;
     memcpy(&tmp, &data_.front(), data_.size());
     return tmp;
   }
 
-  uint64_t getint64() {
+  int64_t getint64() {
     assert(data_.size() == sizeof(int64_t));
     int64_t tmp;
     memcpy(&tmp, &data_.front(), data_.size());
@@ -374,7 +368,7 @@ public:
     char c;
     assert(data_.size() == sizeof(c));
     memcpy(&c, &data_.front(), data_.size());
-    if(c == 1) {
+    if(c != 0) {
       return true;
     }
     else {
@@ -383,6 +377,44 @@ public:
   }
 
   template<typename T>
-  T get();
+  T get() {
+    return parse<T>(data_);
+  }
 };
+
+template<>
+std::string Data::get<std::string>();
+
+template<>
+std::vector<uint8_t> Data::get<std::vector<uint8_t>>();
+
+template<>
+uint8_t Data::get<uint8_t>();
+
+template<>
+int8_t Data::get<int8_t>();
+
+template<>
+uint16_t Data::get<uint16_t>();
+
+template<>
+int16_t Data::get<int16_t>();
+
+template<>
+uint32_t Data::get<uint32_t>();
+
+template<>
+int32_t Data::get<int32_t>();
+
+template<>
+uint64_t Data::get<uint64_t>();
+
+template<>
+int64_t Data::get<int64_t>();
+
+template<>
+varintNum Data::get<varintNum>();
+
+template<>
+bool Data::get<bool>();
 }

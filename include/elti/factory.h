@@ -7,12 +7,8 @@ Data* makeData(Args&&... args) {
   return new Data(std::forward<Args>(args)...);
 }
 
-Map* makeMap() {
-  return new Map();
-}
+Map* makeMap();
 
-Array* makeArray() {
-  return new Array();
-}
+Array* makeArray();
 }
 

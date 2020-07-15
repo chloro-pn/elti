@@ -29,6 +29,7 @@ void Element::parse(const char*& begin, size_t& offset) {
 }
 
 void Element::seri(std::string& result) {
+  result.reserve(2048);
   key_.keySeri(result);
   seriValueType(v_->getType(), result);
   v_->valueSeri(result);

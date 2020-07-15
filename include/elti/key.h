@@ -5,7 +5,7 @@ namespace elti {
 class Key {
   friend class Element;
 public:
-  explicit Key(std::string key);
+  explicit Key(const std::string& key);
 
   Key (const char* ptr, size_t n);
 

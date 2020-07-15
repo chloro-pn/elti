@@ -2,13 +2,13 @@
 #include <cstdint>
 #include <cstdio>
 #include <string>
-
-class Value;
-class Map;
-class Array;
-class Data;
+#include <vector>
 
 namespace elti {
+  class Value;
+  class Map;
+  class Array;
+  class Data;
 
   enum class ValueType { Map, Array, Data };
 
@@ -38,6 +38,12 @@ namespace elti {
       return num_;
     }
   };
+
+  template<typename T>
+  void seri(const T& obj, std::vector<uint8_t>& container);
+
+  template<typename T>
+  T parse(const std::vector<uint8_t>& container);
 
 #define CHECK_PTR(x) \
 if((x) == nullptr) {\
