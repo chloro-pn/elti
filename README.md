@@ -22,7 +22,7 @@ Map := { Element }
 
 ARRAY := { Value }
 
-Data = [ byte0, byte1, ... byten ]
+Data := [ byte0, byte1, ... byten ]
 
 // Data : 代表一段二进制序列
 
