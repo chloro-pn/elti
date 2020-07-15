@@ -3,7 +3,7 @@
 #include <cstring>
 
 namespace elti {
-Key::Key(std::string key) : key_(key) {
+Key::Key(const std::string& key) : key_(key) {
 
 }
 

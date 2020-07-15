@@ -155,16 +155,16 @@ bool Data::get() {
 }
 
 Value* valueFactory(ValueType type) {
-    Value* v_ = nullptr;
-    if(type == ValueType::Map) {
-      v_ = new Map();
-    }
-    else if(type == ValueType::Array) {
-      v_ = new Array();
-    }
-    else {
-      v_ = new Data();
-    }
-    return v_;
+  Value* v_ = nullptr;
+  if(type == ValueType::Map) {
+    v_ = new Map();
+  }
+  else if(type == ValueType::Array) {
+    v_ = new Array();
+  }
+  else {
+    v_ = new Data();
+  }
+  return v_;
 }
 }

@@ -74,7 +74,7 @@ void seriLength(uint32_t length, std::string& result) {
     char buf[128];
     unsigned char bytes = 0;
     varint_encode(length, buf, sizeof(buf), &bytes);
-    result.append(buf, static_cast<uint32_t>(bytes));
+    result.append(buf, static_cast<size_t>(bytes));
   }
 }
 
