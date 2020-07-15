@@ -96,10 +96,73 @@ std::cout << "content size : " << new_root["content"].get<std::string>().size() 
 ```
 
 数据的访问，Root类型重载了operator[]，访问Map对象通过operator[](const char*)接口，访问Array对象通过operator[](elti::num)接口和size()接口，
-访问Data对象通过.get<>()接口。
+访问Data对象通过.get<TYPE>()接口。
 注：
 * Root假设用户按照正确的类型访问对应的对象，通过assert进行判断，如果通过接口访问了不对应的类型，debug模式下会报错，release模式下结果未定义。
 
 ## 变长编码
 
-待续
+elti在存储元信息时使用变长编码以节省空间，用户也可以通过传递给Data类型varintNum类型对象以使用变长编码传递整形数据（目前变长编码仅支持无符号类型）：
+```c++
+elti::Data* data = elti::makeData(elti::varintNum(14553)); //编码
+std::cout << "flow id : " << new_root["flow_id"].get<elti::varintNum>().getNum() << std::endl; //解码
+```
+
+## 自定义序列化/反序列化接口
+
+elti仅提供基本类型的序列化机制，你也可以通过实例化以下两个模板参数来定制特定类型的序列化，反序列化接口：
+```c++
+template<typename T>
+void seri(const T& obj, std::vector<uint8_t>& container);
+
+template<typename T>
+T parse(const std::vector<uint8_t>& container);
+```
+
+例子：
+```c++
+class test {
+public:
+  test(int a, std::string n): age(a), name(n) {
+
+  }
+  //just for test.
+  int age;
+  std::string name;
+};
+
+namespace elti {
+template<>
+void seri(const test& obj, std::vector<uint8_t>& container) {
+  container.resize(sizeof(obj.age) + obj.name.size());
+  memcpy(&container.front(), &obj.age, sizeof(obj.age));
+  memcpy(&container.front() + sizeof(obj.age), obj.name.data(), obj.name.size());
+}
+
+template<>
+test parse(const std::vector<uint8_t>& container) {
+  int age;
+  std::string name;
+  memcpy(&age, &container.front(), sizeof(age));
+  name.append((char*)(&container.front() + sizeof(age)), container.size() - sizeof(age));
+  return test(age, name);
+}
+}
+
+int main() {
+  elti::Map* obj = elti::makeMap();
+  //调用自定义的seri接口
+  obj->set("obj", elti::makeData(test(25, "nanpang")));
+  elti::Root root(obj);
+  std::string result;
+  root.seri(result);
+  
+  elti::Root new_root;
+  size_t offset = new_root.parse(result.data());
+  assert(offset == result.length());
+  //调用自定义的parse接口
+  test t = new_root["obj"].get<test>();
+  std::cout << "age : " << t.age << " name : " << t.name << std::endl;
+  return 0;
+}
+```
