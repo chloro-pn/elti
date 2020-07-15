@@ -1,7 +1,6 @@
 ﻿#include <iostream>
 #include <vector>
 #include "elti.h"
-#include "jemalloc/jemalloc.h"
 // Element := Key : Value
 //
 // Value := Map
@@ -16,19 +15,10 @@
 
 #include <ctime>
 
-void* operator new(size_t size) {
-    void* m = malloc(size);
-    return m;
-}
-
-void operator delete(void* m) {
-    free(m);
-}
-
 int main() {
   time_t start, end;
   start = clock();
-  for(int i = 0; i < 100000; ++i) {
+  for(int i = 0; i < 1000; ++i) {
     elti::Map* map = elti::makeMap();
     map->set("name", elti::makeData("nanpang"));
     map->set("age", elti::makeData(27));
