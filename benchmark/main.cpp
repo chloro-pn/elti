@@ -13,42 +13,35 @@
 // Data : an array of byte. [byte0, byte1, ... byten]
 // ARRAY : an array of Value
 
-#include <ctime>
 
 int main() {
-  time_t start, end;
-  start = clock();
-  for(int i = 0; i < 100000; ++i) {
-    elti::Map* map = elti::makeMap();
-    map->set("name", elti::makeData("nanpang"));
-    map->set("age", elti::makeData(27));
-    map->set("sex", elti::makeData(1));
-    map->set("eof", elti::makeData(false));
-    elti::Data* data = elti::makeData(elti::varintNum(14553));
-    map->set("flow_id", data);
-    std::string content(4096, 'a');
-    map->set("content", elti::makeData(content));
-    elti::Array* array = elti::makeArray();
-    for(int i= 0; i < 10; ++i) {
-      array->push_back(elti::makeData(i));
-    }
-    map->set("ids", array);
-    elti::Root root(map);
-    std::string result;
-    root.seri(result);
-
-    elti::Root new_root;
-    size_t offset = new_root.parse(result.data());
-    assert(offset == result.size());
-    auto arr = new_root["ids"];
-    for(int i = 0; i < arr.size(); ++i) {
-      arr[elti::num(i)].get<int>();
-    }
-    new_root["flow_id"].get<elti::varintNum>();
-    new_root["name"].get<std::string>();
-    new_root["content"].get<std::string>();
+  elti::Map* map = elti::makeMap();
+  map->set("name", elti::makeData("nanpang"));
+  map->set("age", elti::makeData(27));
+  map->set("sex", elti::makeData(1));
+  map->set("eof", elti::makeData(false));
+  elti::Data* data = elti::makeData(elti::varintNum(14553));
+  map->set("flow_id", data);
+  std::string content(4096, 'a');
+  map->set("content", elti::makeData(content));
+  elti::Array* array = elti::makeArray();
+  for(int i= 0; i < 10; ++i) {
+    array->push_back(elti::makeData(i));
   }
-  end = clock();
-  std::cout << "use time : " << ((double)(end) - start) / CLOCKS_PER_SEC << std::endl;
+  map->set("ids", array);
+  elti::Root root(map);
+  std::string result;
+  root.seri(result);
+
+  elti::Root new_root;
+  size_t offset = new_root.parse(result.data());
+  assert(offset == result.size());
+  auto arr = new_root["ids"];
+  for(int i = 0; i < arr.size(); ++i) {
+    std::cout << "ids index : " << i << " id : " << arr[elti::num(i)].get<int>() << std::endl;
+  }
+  std::cout << "flow id : " << new_root["flow_id"].get<elti::varintNum>().getNum() << std::endl;
+  std::cout << "name : " << new_root["name"].get<std::string>() << std::endl;
+  std::cout << "content size : " << new_root["content"].get<std::string>().size() << std::endl;
   return 0;
 }
