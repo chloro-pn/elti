@@ -65,11 +65,28 @@ Data::Data(uint32_t num) : Value(ValueType::Data) {
   setData(num);
 }
 
-Data::Data(int num) : Value(ValueType::Data) {
+Data::Data(uint64_t num) : Value(ValueType::Data) {
   setData(num);
 }
 
-Data::Data(uint64_t num) : Value(ValueType::Data) {
+
+Data::Data(int8_t num) : Value(ValueType::Data) {
+  setData(num);
+}
+
+Data::Data(int16_t num) : Value(ValueType::Data) {
+  setData(num);
+}
+
+Data::Data(int32_t num) : Value(ValueType::Data) {
+  setData(num);
+}
+
+Data::Data(int64_t num) : Value(ValueType::Data) {
+  setData(num);
+}
+
+Data::Data(varintNum num) : Value(ValueType::Data) {
   setData(num);
 }
 
@@ -98,18 +115,38 @@ std::uint16_t Data::get() {
 }
 
 template<>
-uint32_t Data::get() {
+std::uint32_t Data::get() {
   return getUint32();
-}
-
-template<>
-int Data::get() {
-  return getInt();
 }
 
 template<>
 std::uint64_t Data::get() {
   return getUint64();
+}
+
+template<>
+std::int8_t Data::get() {
+  return getint8();
+}
+
+template<>
+std::int16_t Data::get() {
+  return getint16();
+}
+
+template<>
+std::int32_t Data::get() {
+  return getint32();
+}
+
+template<>
+std::int64_t Data::get() {
+  return getint64();
+}
+
+template<>
+varintNum Data::get() {
+  return getVarintNum();
 }
 
 template<>
@@ -120,13 +157,13 @@ bool Data::get() {
 Value* valueFactory(ValueType type) {
     Value* v_ = nullptr;
     if(type == ValueType::Map) {
-        v_ = new Map();
+      v_ = new Map();
     }
     else if(type == ValueType::Array) {
-        v_ = new Array();
+      v_ = new Array();
     }
     else {
-        v_ = new Data();
+      v_ = new Data();
     }
     return v_;
 }

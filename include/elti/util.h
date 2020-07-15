@@ -26,6 +26,19 @@ namespace elti {
 
   Data* getValueAsData(Value* v);
 
+  class varintNum {
+    uint64_t num_;
+
+  public:
+    explicit varintNum(uint64_t num) : num_(num) {
+
+    }
+
+    uint64_t getNum() const {
+      return num_;
+    }
+  };
+
 #define CHECK_PTR(x) \
 if((x) == nullptr) {\
   fprintf(stderr, "parse error."); \

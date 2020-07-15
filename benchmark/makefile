@@ -4,12 +4,14 @@ CXXFLAGS := -Wall -std=c++11
 
 LIBS := -L../src -lelti -L../third_party/varint -lvarint
 
+export LD_LIBRARY_PATH="/usr/local/lib":$LD_LIBRARY_PATH
+
 ### jemalloc ###
-INCLUDE_PATH += -I /data/jmalloc/jemalloc/include
-LIBS += -L/data/jmalloc/jemalloc/lib -ljemalloc
+INCLUDE_PATH += -I /home/pn/jemalloc/include
+LIBS += -L/home/pn/jemalloc/lib -ljemalloc
 
 SRCS := $(wildcard *.cpp)
-OBJS := $(SRCS.cpp=.out)
+OBJS := $(SRCS:.cpp=.out)
 DEPS := $(SRCS:.cpp=.d)
 
 .PHONY :  all

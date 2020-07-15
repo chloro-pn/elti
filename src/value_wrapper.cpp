@@ -6,6 +6,10 @@ namespace elti {
 
   }
 
+  size_t ValueWrapper::useBytes() const {
+    return getValueAsData(v_)->useBytes();
+  }
+
   ValueWrapper ValueWrapper::operator[](const char* attr) {
     return ValueWrapper(getValueAsMap(v_)->operator[](attr));
   }

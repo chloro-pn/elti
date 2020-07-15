@@ -29,6 +29,8 @@ namespace elti {
       return *this;
     }
 
+    size_t useBytes() const;
+
     ValueWrapper operator[](const char* attr);
 
     size_t size() const;
