@@ -1,7 +1,7 @@
 ﻿#include <iostream>
 #include <vector>
 #include "elti.h"
-
+#include "jemalloc/jemalloc.h"
 // Element := Key : Value
 //
 // Value := Map
@@ -16,10 +16,19 @@
 
 #include <ctime>
 
+void* operator new(size_t size) {
+    void* m = malloc(size);
+    return m;
+}
+
+void operator delete(void* m) {
+    free(m);
+}
+
 int main() {
   time_t start, end;
   start = clock();
-  for(int i = 0; i < 1000; ++i) {
+  for(int i = 0; i < 100000; ++i) {
     elti::Map* map = elti::makeMap();
     map->set("name", elti::makeData("nanpang"));
     map->set("age", elti::makeData(27));
@@ -33,7 +42,7 @@ int main() {
       array->push_back(elti::makeData(i));
     }
     map->set("ids", array);
-/*
+
     elti::Root root(map);
     std::string result;
     root.seri(result);
@@ -44,7 +53,7 @@ int main() {
     for(int i = 0; i < arr.size(); ++i) {
       arr[elti::num(i)].get<int>();
     }
-*/
+
     //new_root["name"].get<std::string>();
     //new_root["content"].get<std::string>();
   }

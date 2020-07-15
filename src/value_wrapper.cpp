@@ -1,5 +1,5 @@
 #include "elti/value_wrapper.h"
-#include "util.h"
+#include "elti/util.h"
 
 namespace elti {
   ValueWrapper::ValueWrapper(Value* v) : v_(v) {
