@@ -21,7 +21,7 @@ public:
 namespace elti {
 template<>
 void seri(const test& obj, std::vector<uint8_t>& container) {
-  container.resize(sizeof(obj.floor_) + obj.apartment_.size() + obj.station_number_.size());
+  container.resize(sizeof(obj.floor_));
   memcpy(&container.front(), &obj.floor_, sizeof(obj.floor_));
 }
 
@@ -35,10 +35,14 @@ test parse(const std::vector<uint8_t>& container) {
 
 int main() {
   elti::Array* obj = elti::makeArray();
-  obj->push_back(elti::makeData("book1"));
+  obj->push_back(elti::makeData("book1")); // add.
   obj->push_back(elti::makeData("book2"));
+  obj->push_back(elti::makeData("error"));
+  obj->erase(2); // delete.
   elti::Map* message = elti::makeMap();
-  message->set("name", elti::makeData("nanpang"));
+  elti::Data* name = elti::makeData("pangnan");
+  (*name) = "nanpang"; // change.
+  message->set("name", name);
   message->set("age", elti::makeData(elti::varintNum(25)));
   message->set("position", elti::makeData(test(39, "yfnx", "029")));
   message->set("books", obj);

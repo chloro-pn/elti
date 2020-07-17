@@ -1,4 +1,3 @@
-#include <iostream>
 #include <vector>
 #include "elti.h"
 // Element := Key : Value
@@ -12,6 +11,7 @@
 
 // Data : an array of byte. [byte0, byte1, ... byten]
 // ARRAY : an array of Value
+#include <iostream>
 
 int main() {
   elti::Map* map = elti::makeMap();

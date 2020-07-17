@@ -3,14 +3,15 @@
 #include <cstdio>
 #include <string>
 #include <vector>
+#include "varint_num.h"
+#include "seri_parse.h"
+#include "value_type.h"
 
 namespace elti {
   class Value;
   class Map;
   class Array;
   class Data;
-
-  enum class ValueType { Map, Array, Data, Invalid };
 
   ValueType parseValueType(const char*& begin, size_t& offset);
 
@@ -26,82 +27,7 @@ namespace elti {
 
   Data* getValueAsData(Value* v);
 
-  class varintNum {
-    uint64_t num_;
-
-  public:
-    explicit varintNum(uint64_t num) : num_(num) {
-
-    }
-
-    uint64_t getNum() const {
-      return num_;
-    }
-  };
-
-  template<typename T>
-  void seri(const T& obj, std::vector<uint8_t>& container);
-
-  void seri(const std::vector<uint8_t>& obj, std::vector<uint8_t>& container);
-
-  void seri(std::vector<uint8_t>&& obj, std::vector<uint8_t>& container);
-
-  void seri(const std::string& obj, std::vector<uint8_t>& container);
-
-  void seri(const char* obj, std::vector<uint8_t>& container);
-
-  void seri(const int8_t& obj, std::vector<uint8_t>& container);
-
-  void seri(const uint8_t& obj, std::vector<uint8_t>& container);
-
-  void seri(const int16_t& obj, std::vector<uint8_t>& container);
-
-  void seri(const uint16_t& obj, std::vector<uint8_t>& container);
-
-  void seri(const int32_t& obj, std::vector<uint8_t>& container);
-
-  void seri(const uint32_t& obj, std::vector<uint8_t>& container);
-
-  void seri(const int64_t& obj, std::vector<uint8_t>& container);
-
-  void seri(const uint64_t& obj, std::vector<uint8_t>& container);
-
-  void seri(const varintNum& obj, std::vector<uint8_t>& container);
-
-  void seri(const bool& obj, std::vector<uint8_t>& container);
-
-  template<typename T>
-  T parse(const std::vector<uint8_t>& container);
-
-  template<>
-  std::string parse(const std::vector<uint8_t>& container);
-
-  template<>
-  int8_t parse(const std::vector<uint8_t>& container);
-
-  template<>
-  uint8_t parse(const std::vector<uint8_t>& container);
-
-  template<>
-  int16_t parse(const std::vector<uint8_t>& container);
-
-  template<>
-  uint16_t parse(const std::vector<uint8_t>& container);
-
-  template<>
-  int32_t parse(const std::vector<uint8_t>& container);
-
-  template<>
-  uint32_t parse(const std::vector<uint8_t>& container);
-
-  template<>
-  int64_t parse(const std::vector<uint8_t>& container);
-
-  template<>
-  uint64_t parse(const std::vector<uint8_t>& container);
-
-  template<>
-  varintNum parse(const std::vector<uint8_t>& container);
+  void cleanValue(Value* v);
 
 #define CHECK_PTR(x) \
 if((x) == nullptr) {\

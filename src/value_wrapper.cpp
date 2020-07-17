@@ -15,7 +15,7 @@ namespace elti {
   }
 
   size_t ValueWrapper::size() const {
-    return getValueAsArray(v_)->getSize();
+    return getValueAsArray(v_)->size();
   }
 
   ValueWrapper ValueWrapper::operator[](num index) {

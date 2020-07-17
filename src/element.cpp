@@ -1,5 +1,7 @@
 #include "elti/element.h"
 #include "elti/value.h"
+#include "elti/util.h"
+#include <utility>
 
 namespace elti {
 Element::Element():key_(""), v_(nullptr) {
@@ -10,22 +12,23 @@ Element::Element(const char* ptr, Value* v):key_(ptr), v_(v) {
 
 }
 
-Element::Element(Element&& other) noexcept :key_(std::move(other.key_)), v_(other.v_) {
-    other.v_ = nullptr;
+Element::Element(Element&& other) noexcept :key_(::std::move(other.key_)), v_(other.v_) {
+  other.v_ = nullptr;
 }
 
 Element& Element::operator=(Element &&other) noexcept {
-    key_ = std::move(other.key_);
-    v_ = other.v_;
-    other.v_ = nullptr;
-    return *this;
+  cleanValue(v_);
+  key_ = std::move(other.key_);
+  v_ = other.v_;
+  other.v_ = nullptr;
+  return *this;
 }
 
 void Element::parse(const char*& begin, size_t& offset) {
-    key_.keyParse(begin, offset);
-    ValueType type = parseValueType(begin, offset);
-    v_ = valueFactory(type);
-    v_->valueParse(begin, offset);
+  key_.keyParse(begin, offset);
+  ValueType type = parseValueType(begin, offset);
+  v_ = valueFactory(type);
+  v_->valueParse(begin, offset);
 }
 
 void Element::seri(std::string& result) {
@@ -40,6 +43,6 @@ Value* Element::getValue() {
 }
 
 Element::~Element() {
-    delete v_;
+  cleanValue(v_);
 }
 }

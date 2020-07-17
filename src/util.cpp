@@ -93,10 +93,23 @@ Data* getValueAsData(Value* v) {
   return static_cast<Data*>(v);
 }
 
+void cleanValue(Value* v) {
+  if(v == nullptr) {
+    return;
+  }
+  if(v->getType() == ValueType::Map) {
+    delete getValueAsMap(v);
+  }
+  else if(v->getType() == ValueType::Array) {
+    delete getValueAsArray(v);
+  }
+  else if(v->getType() == ValueType::Data) {
+    delete getValueAsData(v);
+  }
+}
+
 void seri(const std::vector<uint8_t>& obj, std::vector<uint8_t>& container) {
-  size_t old_len = container.size() * sizeof(uint8_t);
-  container.resize(container.size() + obj.size() * sizeof(uint8_t));
-  memcpy(&container.front() + old_len, &obj.front(), obj.size() * sizeof(uint8_t));
+  container = obj;
 }
 
 void seri(std::vector<uint8_t>&& obj, std::vector<uint8_t>& container) {

@@ -38,7 +38,7 @@ public:
   }
 
   uint64_t size() {
-    return getValueAsArray(getValue())->getSize();
+    return getValueAsArray(getValue())->size();
   }
 
   template<typename T>

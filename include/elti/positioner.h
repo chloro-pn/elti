@@ -14,10 +14,6 @@ public:
 
   Positioner operator[](num index);
 
-  const char* getNextValueAddr() const {
-    return ptr_ + total_size_;
-  }
-
   bool IsFind() const {
     return find_;
   }
@@ -36,5 +32,9 @@ private:
   ValueType type_;
   uint64_t total_size_;
   bool find_;
+
+  const char* getNextValueAddr() const {
+    return ptr_ + total_size_;
+  }
 };
 }

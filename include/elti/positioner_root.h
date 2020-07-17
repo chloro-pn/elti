@@ -25,7 +25,7 @@ public:
 
   template<typename T>
   T get() {
-    return Positioner(ptr_, ValueType::Data).get<T>();
+    return Positioner(ptr_, type_).get<T>();
   }
 
 private:
