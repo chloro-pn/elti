@@ -21,7 +21,7 @@ namespace elti {
 
     template<typename T>
     void setData(T&& arg) {
-      getValueAsData(v_)->setData(std::forward<T>(arg));
+      seri(std::forward<T>(arg), getValueAsData(v_)->bytesRef());
     }
 
     template<typename T>

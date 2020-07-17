@@ -17,6 +17,10 @@ public:
 
   Key& operator=(const Key&) = default;
 
+  bool operator==(const Key& other) const {
+    return key_ == other.key_;
+  }
+
   void keyParse(const char*& ptr, size_t& offset);
 
   void keySeri(std::string& str);

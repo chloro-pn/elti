@@ -39,6 +39,7 @@ private:
 public:
   Map();
   void valueParse(const char*& begin, size_t& offset) {
+    parseLength(begin, offset); //total size.
     uint64_t count = parseLength(begin, offset);
     for(uint64_t i = 0; i < count; ++i) {
       Element tmp;
@@ -49,11 +50,14 @@ public:
   }
 
   void valueSeri(std::string& result) {
+    std::string tmp;
     uint32_t count = kvs_.size();
-    seriLength(count, result);
+    seriLength(count, tmp);
     for(auto& each : kvs_) {
-      each.seri(result);
+      each.seri(tmp);
     }
+    seriLength(tmp.size(), result);
+    result.append(tmp);
   }
 
   void setElements(std::vector<Element>&& eles) {
@@ -104,6 +108,7 @@ public:
   Array();
 
   void valueParse(const char*& begin, size_t& offset) {
+    parseLength(begin, offset); //total size.
     uint64_t count = parseLength(begin, offset);
     for(uint64_t i = 0; i < count; ++i) {
       ValueType type = parseValueType(begin, offset);
@@ -114,12 +119,15 @@ public:
   }
 
   void valueSeri(std::string& result) {
+    std::string tmp;
     uint32_t count = vs_.size();
-    seriLength(count, result);
+    seriLength(count, tmp);
     for(auto& each : vs_) {
-      seriValueType(each->getType(), result);
-      each->valueSeri(result);
+      seriValueType(each->getType(), tmp);
+      each->valueSeri(tmp);
     }
+    seriLength(tmp.size(), result);
+    result.append(tmp);
   }
 
   void setArray(std::vector<Value*>&& vs) {
@@ -156,32 +164,6 @@ private:
 public:
   Data();
 
-  explicit Data(const std::vector<uint8_t>&);
-
-  explicit Data(const char* ptr);
-
-  explicit Data(std::string str);
-
-  explicit Data(uint8_t num);
-
-  explicit Data(int8_t num);
-
-  explicit Data(uint16_t num);
-
-  explicit Data(int16_t num);
-
-  explicit Data(uint32_t num);
-
-  explicit Data(int32_t num);
-
-  explicit Data(uint64_t num);
-
-  explicit Data(int64_t num);
-
-  explicit Data(varintNum num);
-
-  explicit Data(bool b);
-
   template<typename T>
   explicit Data(const T& obj) : Value(ValueType::Data) {
     seri(obj, data_);
@@ -203,177 +185,12 @@ public:
     memcpy(&(*(result.begin() + old_len)), &data_.front(), length);
   }
 
-  void setData(const std::vector<uint8_t>& datas) {
-    data_ = datas;
-  }
-
-  void setData(std::vector<uint8_t>&& datas) {
-    data_ = std::move(datas);
-  }
-
-  void setData(const char* ptr) {
-    size_t len = strlen(ptr);
-    data_.resize(len);
-    memcpy(&data_.front(), ptr, len);
-  }
-
-  void setData(const std::string& str) {
-    size_t len = str.size();
-    data_.resize(len);
-    memcpy(&data_.front(), str.data(), len);
-  }
-
-  void setData(uint8_t num) {
-    data_.resize(sizeof(num));
-    memcpy(&data_.front(), &num, sizeof(num));
-  }
-
-  void setData(uint16_t num) {
-    data_.resize(sizeof(num));
-    memcpy(&data_.front(), &num, sizeof(num));
-  }
-
-  void setData(uint32_t num) {
-    data_.resize(sizeof(num));
-    memcpy(&data_.front(), &num, sizeof(num));
-  }
-
-  void setData(uint64_t num) {
-    data_.resize(sizeof(num));
-    memcpy(&data_.front(), &num, sizeof(num));
-  }
-
-  void setData(int8_t num) {
-    data_.resize(sizeof(num));
-    memcpy(&data_.front(), &num, sizeof(num));
-  }
-
-  void setData(int16_t num) {
-    data_.resize(sizeof(num));
-    memcpy(&data_.front(), &num, sizeof(num));
-  }
-
-  void setData(int32_t num) {
-    data_.resize(sizeof(num));
-    memcpy(&data_.front(), &num, sizeof(num));
-  }
-
-  void setData(int64_t num) {
-    data_.resize(sizeof(num));
-    memcpy(&data_.front(), &num, sizeof(num));
-  }
-
-  void setData(varintNum num) {
-    char buf[128];
-    unsigned char bytes = 0;
-    varint_encode(num.getNum(), buf, sizeof(buf), &bytes);
-    data_.resize((size_t)bytes);
-    memcpy(&data_.front(), buf, bytes);
-  }
-
-  void setData(bool b) {
-    char c;
-    data_.resize(sizeof(c));
-    if(b == true) {
-      c = 1;
-    }
-    else {
-      c = 0;
-    }
-    memcpy(&data_.front(), &c, sizeof(c));
-  }
-
   size_t useBytes() const {
     return data_.size();
   }
 
-  std::vector<uint8_t> getBinary() {
+  std::vector<uint8_t>& bytesRef() {
     return data_;
-  }
-
-  std::string getString() {
-    std::string result;
-    result.resize(data_.size());
-    for(size_t i = 0; i < data_.size(); ++i) {
-      result[i] = data_[i];
-    }
-    return result;
-  }
-
-  uint8_t getUint8() {
-    assert(data_.size() == sizeof(uint8_t));
-    uint8_t tmp;
-    memcpy(&tmp, &data_.front(), data_.size());
-    return tmp;
-  }
-
-  uint16_t getUint16() {
-    assert(data_.size() == sizeof(uint16_t));
-    uint16_t tmp;
-    memcpy(&tmp, &data_.front(), data_.size());
-    return tmp;
-  }
-
-  uint32_t getUint32() {
-    assert(data_.size() == sizeof(uint32_t));
-    uint32_t tmp;
-    memcpy(&tmp, &data_.front(), data_.size());
-    return tmp;
-  }
-
-  uint64_t getUint64() {
-    assert(data_.size() == sizeof(uint64_t));
-    uint64_t tmp;
-    memcpy(&tmp, &data_.front(), data_.size());
-    return tmp;
-  }
-
-  int8_t getint8() {
-    assert(data_.size() == sizeof(int8_t));
-    int8_t tmp;
-    memcpy(&tmp, &data_.front(), data_.size());
-    return tmp;
-  }
-
-  int16_t getint16() {
-    assert(data_.size() == sizeof(int16_t));
-    int16_t tmp;
-    memcpy(&tmp, &data_.front(), data_.size());
-    return tmp;
-  }
-
-  int32_t getint32() {
-    assert(data_.size() == sizeof(int32_t));
-    int32_t tmp;
-    memcpy(&tmp, &data_.front(), data_.size());
-    return tmp;
-  }
-
-  int64_t getint64() {
-    assert(data_.size() == sizeof(int64_t));
-    int64_t tmp;
-    memcpy(&tmp, &data_.front(), data_.size());
-    return tmp;
-  }
-
-  varintNum getVarintNum() {
-    unsigned long long tmp;
-    unsigned char bytes;
-    tmp = varint_decode((char*)&data_.front(), data_.size(), &bytes);
-    assert(data_.size() == static_cast<size_t>(bytes));
-    return varintNum(tmp);
-  }
-
-  bool getBool() {
-    char c;
-    assert(data_.size() == sizeof(c));
-    memcpy(&c, &data_.front(), data_.size());
-    if(c != 0) {
-      return true;
-    }
-    else {
-      return false;
-    }
   }
 
   template<typename T>
@@ -381,40 +198,4 @@ public:
     return parse<T>(data_);
   }
 };
-
-template<>
-std::string Data::get<std::string>();
-
-template<>
-std::vector<uint8_t> Data::get<std::vector<uint8_t>>();
-
-template<>
-uint8_t Data::get<uint8_t>();
-
-template<>
-int8_t Data::get<int8_t>();
-
-template<>
-uint16_t Data::get<uint16_t>();
-
-template<>
-int16_t Data::get<int16_t>();
-
-template<>
-uint32_t Data::get<uint32_t>();
-
-template<>
-int32_t Data::get<int32_t>();
-
-template<>
-uint64_t Data::get<uint64_t>();
-
-template<>
-int64_t Data::get<int64_t>();
-
-template<>
-varintNum Data::get<varintNum>();
-
-template<>
-bool Data::get<bool>();
 }

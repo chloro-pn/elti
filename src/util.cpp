@@ -92,4 +92,180 @@ Data* getValueAsData(Value* v) {
   assert(v->getType() == ValueType::Data);
   return static_cast<Data*>(v);
 }
+
+void seri(const std::vector<uint8_t>& obj, std::vector<uint8_t>& container) {
+  size_t old_len = container.size() * sizeof(uint8_t);
+  container.resize(container.size() + obj.size() * sizeof(uint8_t));
+  memcpy(&container.front() + old_len, &obj.front(), obj.size() * sizeof(uint8_t));
+}
+
+void seri(std::vector<uint8_t>&& obj, std::vector<uint8_t>& container) {
+  container = std::move(obj);
+}
+
+void seri(const std::string& obj, std::vector<uint8_t>& container) {
+  size_t len = obj.size();
+  container.resize(len);
+  memcpy(&container.front(), obj.data(), len);
+}
+
+void seri(const char* obj, std::vector<uint8_t>& container) {
+  size_t len = strlen(obj);
+  container.resize(len);
+  memcpy(&container.front(), obj, len);
+}
+
+void seri(const int8_t& obj, std::vector<uint8_t>& container) {
+  container.resize(sizeof(obj));
+  memcpy(&container.front(), &obj, sizeof(obj));
+}
+
+void seri(const uint8_t& obj, std::vector<uint8_t>& container) {
+  container.resize(sizeof(obj));
+  memcpy(&container.front(), &obj, sizeof(obj));
+}
+
+void seri(const int16_t& obj, std::vector<uint8_t>& container) {
+  container.resize(sizeof(obj));
+  memcpy(&container.front(), &obj, sizeof(obj));
+}
+
+void seri(const uint16_t& obj, std::vector<uint8_t>& container) {
+  container.resize(sizeof(obj));
+  memcpy(&container.front(), &obj, sizeof(obj));
+}
+
+void seri(const int32_t& obj, std::vector<uint8_t>& container) {
+  container.resize(sizeof(obj));
+  memcpy(&container.front(), &obj, sizeof(obj));
+}
+
+void seri(const uint32_t& obj, std::vector<uint8_t>& container) {
+  container.resize(sizeof(obj));
+  memcpy(&container.front(), &obj, sizeof(obj));
+}
+
+void seri(const int64_t& obj, std::vector<uint8_t>& container) {
+  container.resize(sizeof(obj));
+  memcpy(&container.front(), &obj, sizeof(obj));
+}
+
+void seri(const uint64_t& obj, std::vector<uint8_t>& container) {
+  container.resize(sizeof(obj));
+  memcpy(&container.front(), &obj, sizeof(obj));
+}
+
+void seri(const varintNum& obj, std::vector<uint8_t>& container) {
+  char buf[128];
+  unsigned char bytes = 0;
+  varint_encode(obj.getNum(), buf, sizeof(buf), &bytes);
+  container.resize((size_t)bytes);
+  memcpy(&container.front(), buf, bytes);
+}
+
+void seri(const bool& obj, std::vector<uint8_t>& container) {
+  char c;
+  container.resize(sizeof(c));
+  if(obj == true) {
+    c = 1;
+  }
+  else {
+    c = 0;
+  }
+  memcpy(&container.front(), &c, sizeof(c));
+}
+
+template<>
+std::string parse(const std::vector<uint8_t>& container) {
+  std::string result;
+  result.resize(container.size());
+  memcpy(&result.front(), &container.front(), container.size());
+  return result;
+}
+
+template<>
+int8_t parse(const std::vector<uint8_t>& container) {
+  assert(container.size() == sizeof(int8_t));
+  int8_t tmp;
+  memcpy(&tmp, &container.front(), container.size());
+  return tmp;
+}
+
+template<>
+uint8_t parse(const std::vector<uint8_t>& container) {
+  assert(container.size() == sizeof(uint8_t));
+  uint8_t tmp;
+  memcpy(&tmp, &container.front(), container.size());
+  return tmp;
+}
+
+template<>
+int16_t parse(const std::vector<uint8_t>& container) {
+  assert(container.size() == sizeof(int16_t));
+  int16_t tmp;
+  memcpy(&tmp, &container.front(), container.size());
+  return tmp;
+}
+
+template<>
+uint16_t parse(const std::vector<uint8_t>& container) {
+  assert(container.size() == sizeof(uint16_t));
+  uint16_t tmp;
+  memcpy(&tmp, &container.front(), container.size());
+  return tmp;
+}
+
+template<>
+int32_t parse(const std::vector<uint8_t>& container) {
+  assert(container.size() == sizeof(int32_t));
+  int32_t tmp;
+  memcpy(&tmp, &container.front(), container.size());
+  return tmp;
+}
+
+template<>
+uint32_t parse(const std::vector<uint8_t>& container) {
+  assert(container.size() == sizeof(uint32_t));
+  uint32_t tmp;
+  memcpy(&tmp, &container.front(), container.size());
+  return tmp;
+}
+
+template<>
+int64_t parse(const std::vector<uint8_t>& container) {
+  assert(container.size() == sizeof(int64_t));
+  int64_t tmp;
+  memcpy(&tmp, &container.front(), container.size());
+  return tmp;
+}
+
+template<>
+uint64_t parse(const std::vector<uint8_t>& container) {
+  assert(container.size() == sizeof(uint64_t));
+  uint64_t tmp;
+  memcpy(&tmp, &container.front(), container.size());
+  return tmp;
+}
+
+template<>
+varintNum parse(const std::vector<uint8_t>& container) {
+  unsigned long long tmp;
+  unsigned char bytes;
+  tmp = varint_decode((char*)&container.front(), container.size(), &bytes);
+  assert(container.size() == static_cast<size_t>(bytes));
+  return varintNum(tmp);
+}
+
+template<>
+bool parse(const std::vector<uint8_t>& container) {
+  char c;
+  assert(container.size() == sizeof(c));
+  memcpy(&c, &container.front(), container.size());
+  if(c != 0) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
 }

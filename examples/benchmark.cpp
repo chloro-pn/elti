@@ -17,7 +17,7 @@
 int main() {
   time_t start,end;
   start = clock();
-  for(int i = 0; i < 100000; ++i) {
+  for(int i = 0; i < 1000; ++i) {
     elti::Map* map = elti::makeMap();
     map->set("name", elti::makeData("nanpang"));
     map->set("age", elti::makeData(elti::varintNum(27)));
@@ -28,8 +28,10 @@ int main() {
     std::string content(4096, 'a');
     map->set("content", elti::makeData(content));
     elti::Array* array = elti::makeArray();
-    for(int i= 0; i < 10; ++i) {
-      array->push_back(elti::makeData((int32_t)i));
+    for(uint32_t i= 0; i < 1000; ++i) {
+      std::string tmp;
+      tmp.resize(4096, rand() % 128);
+      array->push_back(elti::makeData(tmp));
     }
     map->set("ids", array);
     elti::Root root(map);
@@ -39,10 +41,10 @@ int main() {
     elti::Root new_root;
     size_t offset = new_root.parse(result.data());
     assert(offset == result.size());
-    auto arr = new_root["ids"];
-    for(int i = 0; i < arr.size(); ++i) {
-      arr[elti::num(i)].get<int32_t>();
-    }
+ //   auto arr = new_root["ids"];
+ //   for(int i = 0; i < arr.size(); ++i) {
+ //     arr[elti::num(i)].get<std::string>();
+ //   }
   }
   end = clock();
   std::cout << " use seconds : " << ((double)(end) - start) / CLOCKS_PER_SEC << std::endl;
