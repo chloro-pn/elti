@@ -3,7 +3,7 @@
 ## elti是什么？
 一个基于c++11标准的序列化/反序列化协议与实现，与json，xml等文本协议相比，elti可以传递二进制数据；与protobuf协议相比，elti配置简单，即拿即用。
 
-elti是类似于bson和cbor的序列化协议，相较于bson协议空间利用率不理想（https://blog.csdn.net/m0_38110132/article/details/77716792）
+elti是类似于bson和cbor的序列化协议，相较于bson协议空间利用率不理想（ https://blog.csdn.net/m0_38110132/article/details/77716792 ）
 ，cbor的c/c++实现又太少（没有找到广泛使用的稳定的轮子），
 elti旨在提供一个在**效率，接口易用性，扩展性，空间利用率**等方面有一个均衡稳定的表现，elti主要用来做数据传输而不是展示，即elti**不考虑可读性**。
 
