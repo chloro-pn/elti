@@ -26,7 +26,6 @@ public:
 
     Value* getValue();
 
-
     void parse(const char*& begin, size_t& offset);
 
     void seri(std::string& result);

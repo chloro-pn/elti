@@ -51,6 +51,9 @@ template<>
 std::string parse(const std::vector<uint8_t>& container);
 
 template<>
+std::vector<uint8_t> parse(const std::vector<uint8_t>& container);
+
+template<>
 int8_t parse(const std::vector<uint8_t>& container);
 
 template<>

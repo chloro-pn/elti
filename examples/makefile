@@ -1,14 +1,8 @@
 CXX := g++
 INCLUDE_PATH := -I ../include -I ../third_party/varint
-CXXFLAGS := -Wall -std=c++11 -g
+CXXFLAGS := -Wall -std=c++11
 
 LIBS := -L../src -lelti -L../third_party/varint -lvarint
-
-export LD_LIBRARY_PATH="/usr/local/lib":$LD_LIBRARY_PATH
-
-### jemalloc ###
-INCLUDE_PATH += -I /home/pn/jemalloc/include
-LIBS += -L/home/pn/jemalloc/lib -ljemalloc
 
 SRCS := $(wildcard *.cpp)
 OBJS := $(SRCS:.cpp=.out)

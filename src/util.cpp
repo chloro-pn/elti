@@ -197,6 +197,11 @@ std::string parse(const std::vector<uint8_t>& container) {
 }
 
 template<>
+std::vector<uint8_t> parse(const std::vector<uint8_t>& container) {
+  return container;
+}
+
+template<>
 int8_t parse(const std::vector<uint8_t>& container) {
   assert(container.size() == sizeof(int8_t));
   int8_t tmp;
