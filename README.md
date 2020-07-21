@@ -32,6 +32,7 @@ linux, macOS
 
 ## 第三方库
 elti使用 https://github.com/sorribas/varint.c 作为对整形数据进行变长编码的库。
+使用 https://github.com/catchorg/Catch2 作为单元测试库。
 
 ## Building
 just run make. 配置库文件+头文件路径即可使用。
