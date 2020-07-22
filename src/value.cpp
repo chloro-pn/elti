@@ -1,6 +1,7 @@
 #include "elti/value.h"
 #include "elti/util.h"
 #include <iterator> // std::advance.
+#include "util.h"
 
 namespace elti {
 Value::Value(ValueType type) : type_(type) {
@@ -128,6 +129,7 @@ void Array::erase(size_t n) {
   assert(n < vs_.size());
   auto it = vs_.begin();
   std::advance(it, n);
+  cleanValue(*it);
   vs_.erase(it);
 }
 

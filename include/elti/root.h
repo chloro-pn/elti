@@ -33,8 +33,8 @@ public:
     return ValueWrapper(getValueAsMap(getValue())->operator[](attr));
   }
 
-  ValueWrapper operator[](size_t n) {
-    return ValueWrapper(getValueAsArray(getValue())->operator[](n));
+  ValueWrapper operator[](num n) {
+    return ValueWrapper(getValueAsArray(getValue())->operator[](n.n_));
   }
 
   uint64_t size() {
