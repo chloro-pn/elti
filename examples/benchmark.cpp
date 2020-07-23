@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include "elti.h"
+#include "elti/positioner_root.h"
 // Element := Key : Value
 //
 // Value := Map
@@ -17,7 +18,7 @@
 int main() {
   time_t start,end;
   start = clock();
-  for(int i = 0; i < 1000; ++i) {
+  for(int i = 0; i < 10000; ++i) {
     elti::Map* map = elti::makeMap();
     map->set("name", elti::makeData("nanpang"));
     map->set("age", elti::makeData(elti::varintNum(27)));
@@ -34,19 +35,19 @@ int main() {
       tmp.resize(4096, rand() % 128);
       array->push_back(elti::makeData(tmp));
     }
+    map->set("ids", array);
 
-    //map->set("ids", array);
     elti::Root root(map);
     std::string result;
     root.seri(result);
 
-    elti::Root new_root;
-    size_t offset = new_root.parse(result.data());
-    assert(offset == result.size());
- //   auto arr = new_root["ids"];
- //   for(int i = 0; i < arr.size(); ++i) {
- //     arr[elti::num(i)].get<std::string>();
- //   }
+    //elti::Root new_root;
+    //size_t offset = new_root.parse(result.data());
+    //assert(offset == result.size());
+    //new_root["name"].get<std::string>();
+
+    elti::PositionerRoot pst(result.data());
+    pst["name"].get<std::string>();
   }
   end = clock();
   std::cout << " use seconds : " << ((double)(end) - start) / CLOCKS_PER_SEC << std::endl;

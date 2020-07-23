@@ -47,6 +47,25 @@ just run make. 配置库文件+头文件路径即可使用。
 根据某个字段从磁盘中查找数据时，可以读入少部分数据并通过定位器局部反序列化提取数据。
 定位器用来快速查询，目前不能用来修改原始序列化数据，之后可以看情况考虑开放更新定长数据接口。
 
+## TODO
+* 增加定位器定位结果到Value(Data, Map, Array)的转化操作，目前定位器对于数据的访问能力有限，例如不支持访问数组
+长度类型
+
+* 支持复合类型的序列化/反序列化机制，例如：
+```c++
+class test {
+private:
+  classA a;
+  classB b;
+};
+
+seri(const test& t, std::vector<uint8_t>& container) {
+  seri(a);
+  seri(b);
+}
+```
+目前这种操作不支持，没有对container做进一步抽象。
+
 ## 使用
 ```c++
 #include "elti.h"
