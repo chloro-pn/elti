@@ -7,7 +7,9 @@ namespace elti {
 Positioner::Positioner(const char* ptr, ValueType type, bool find) :
   ptr_(ptr), type_(type), total_size_(0), find_(find) {
   size_t offset;
-  total_size_ = parseLength(ptr_, offset);
+  if(type != ValueType::Invalid) {
+    total_size_ = parseLength(ptr_, offset);
+  }
 }
 
 Positioner Positioner::operator[](const char *attr) {
@@ -35,7 +37,9 @@ Positioner Positioner::operator[](num index) {
   size_t offset = 0;
   const char* current_value = ptr_;
   uint64_t count = parseLength(current_value, offset);
-  assert(index.n_ < count);
+  if(index.n_ >= count) {
+    return Positioner(nullptr, ValueType::Invalid, false);
+  }
   for(uint64_t i = 0; i < count; ++i) {
     ValueType type = parseValueType(current_value, offset);
     if(i < index.n_) {
@@ -47,6 +51,5 @@ Positioner Positioner::operator[](num index) {
       return Positioner(current_value, type);
     }
   }
-  return Positioner(nullptr, ValueType::Invalid, false);
 }
 }
