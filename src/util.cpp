@@ -5,6 +5,7 @@
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
+#include <cstdio>
 
 #define MAP_TYPE 0
 #define ARRAY_TYPE 1
@@ -57,8 +58,12 @@ void seriValueType(ValueType type, std::string& result) {
   else if(type == ValueType::Array) {
     tmp = ARRAY_TYPE;
   }
-  else {
+  else if(type == ValueType::Data) {
     tmp = DATA_TYPE;
+  }
+  else {
+    fprintf(stderr, "seriValueType error.");
+    exit(-1);
   }
   std::string t2(&tmp, sizeof(tmp));
   result.append(t2);
@@ -105,6 +110,10 @@ void cleanValue(Value* v) {
   }
   else if(v->getType() == ValueType::Data) {
     delete getValueAsData(v);
+  }
+  else {
+    fprintf(stderr, "cleanValue error.");
+    exit(-1);
   }
 }
 

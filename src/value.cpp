@@ -134,6 +134,9 @@ void Array::erase(size_t n) {
 }
 
 Value* Array::operator[](size_t index) {
+  if(index >= vs_.size()) {
+    return nullptr;
+  }
   return vs_[index];
 }
 
