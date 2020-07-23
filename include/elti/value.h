@@ -26,9 +26,7 @@ public:
 
   void valueSeri(std::string& result);
 
-  virtual ~Value() {
-
-  }
+  Value() = default;
 };
 
 Value* valueFactory(ValueType type);

@@ -28,12 +28,14 @@ int main() {
     std::string content(4096, 'a');
     map->set("content", elti::makeData(content));
     elti::Array* array = elti::makeArray();
-    for(uint32_t i= 0; i < 1000; ++i) {
+
+    for(uint32_t i= 0; i < 10; ++i) {
       std::string tmp;
       tmp.resize(4096, rand() % 128);
       array->push_back(elti::makeData(tmp));
     }
-    map->set("ids", array);
+
+    //map->set("ids", array);
     elti::Root root(map);
     std::string result;
     root.seri(result);

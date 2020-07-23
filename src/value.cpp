@@ -1,7 +1,6 @@
 #include "elti/value.h"
 #include "elti/util.h"
 #include <iterator> // std::advance.
-#include "util.h"
 
 namespace elti {
 Value::Value(ValueType type) : type_(type) {
