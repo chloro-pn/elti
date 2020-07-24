@@ -41,6 +41,8 @@ just run make. 配置库文件+头文件路径即可使用。
 采用Catch2作为单元测试库，于test文件夹下。
 
 ## BenchMark
+具体信息见benchmark/BENCH_MARK.md
+
 | 耗时(s) | elti | protobuf | rapidjson | nlohmann/json |
 :-: | :-: | :-: | :-: | :-: |
 测试数据1 | 0.060 | 0.0056 | 0.037 | 0.070
