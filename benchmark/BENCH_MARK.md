@@ -13,15 +13,25 @@ Gcc 4.8.2
 elti，protobuf， rapidjson， hlohmann/json。
 
 ## 测试内容
+
 ------------------------第一种类型数据
+
 name : nanpang
+
 age : 25
+
 sex : 1
+
 eof : false
+
 flow_id : 0
+
 ------------------------第二种类型数据，在一的基础上加content
+
 content : string(4096, ‘a’);
+
 ------------------------第三种类型数据，在二的基础上加ids
+
 ids : array(string(4096, ‘a’)) // array.size() == 10.
 
 分别测试以上三种类型的消息，每次测试进行1w次消息序列化，反序列化操作，统计消耗时间和序列化后的数据大小。
