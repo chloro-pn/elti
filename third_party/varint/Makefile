@@ -9,7 +9,7 @@ lib:
 	$(AR) rcs libvarint.a varint.o
 
 clean:
-	rm *.o
+	rm *.o libvarint.a
 
 test:
 	$(CC) test/main.cpp varint.a -o test/main

@@ -5,6 +5,7 @@
 #include <cstring>
 #include <cassert>
 #include <algorithm>
+#include <type_traits>
 #include "varint.h"
 #include "element.h"
 #include "value_type.h"
@@ -90,7 +91,7 @@ public:
 
   //万能引用的匹配能力过强，需要通过enable_if为ref提供特殊实现。
   template<typename T,
-    typename std::enable_if<!std::is_same_v<ref, std::decay_t<T>>, int>::type = 0>
+    typename std::enable_if<!std::is_same<ref,typename std::decay<T>::type>::value, int>::type = 0>
   explicit Data(const T& obj) : Value(ValueType::Data), type_(type::DATA) {
     seri(obj, data_);
   }
@@ -99,7 +100,7 @@ public:
 
   //万能引用的匹配能力过强，需要通过enable_if为ref提供特殊实现。
   template<typename T, 
-    typename std::enable_if<!std::is_same_v<ref, std::decay_t<T>>, int>::type = 0>
+    typename std::enable_if<!std::is_same<ref,typename std::decay<T>::type>::value, int>::type = 0>
   Data& operator=(T&& other) {
     type_ = type::DATA;
     seri(std::forward<T>(other), data_);

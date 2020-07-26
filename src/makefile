@@ -19,4 +19,4 @@ $(TARGET) : $(OBJS)
 
 .PHONY : clean
 clean : 
-	@rm -rf $(OBJS) $(DEPS)
+	@rm -rf $(OBJS) $(DEPS) $(TARGET)

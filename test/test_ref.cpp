@@ -36,12 +36,12 @@ public:
 
 namespace elti {
   template<>
-  const void* get_addr(const test_for_ref& obj) {
+  const void* getAddr(const test_for_ref& obj) {
     return static_cast<const void*>(obj.bytes.data());
   }
 
   template<>
-  size_t get_length(const test_for_ref& obj) {
+  size_t getLength(const test_for_ref& obj) {
     return obj.bytes.size() * sizeof(char);
   }
 

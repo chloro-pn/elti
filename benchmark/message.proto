@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+message test {
+  string name = 1;
+  int32 age = 2;
+  int32 sex = 3;
+  bool eof = 4;
+  uint64 flow_id = 5;
+  string content = 6;
+  repeated string ids = 7;
+}

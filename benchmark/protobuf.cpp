@@ -14,7 +14,7 @@ int main()
   tt.set_age(25);
   tt.set_sex(1);
   tt.set_eof(false);
-  //tt.set_content(std::string(4096, 'a'));
+  tt.set_content(std::string(4096, 'a'));
   tt.set_flow_id(0);
   /*
   for(int i = 0; i < 10; ++i) {

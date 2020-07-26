@@ -6,10 +6,10 @@
 
 namespace elti {
 template<typename T>
-const void* get_addr(const T& t);
+const void* getAddr(const T& t);
 
 template<typename T>
-size_t get_length(const T& t);
+size_t getLength(const T& t);
 
 class ref {
 public:
@@ -30,7 +30,7 @@ public:
   }
 
   template<typename T>
-  ref(const T& t) : ptr_(get_addr(t)), length_(get_length) {
+  ref(const T& t) : ptr_(getAddr(t)), length_(getLength(t)) {
 
   }
 

@@ -159,14 +159,14 @@ Data::Data() : Value(ValueType::Data), ptr_(nullptr), length_(0), type_(type::IN
 
 }
 
-Data::Data(const ref& obj) : Value(ValueType::Data), ptr_(get_addr(obj)), length_(get_length(obj)), type_(type::REF) {
+Data::Data(const ref& obj) : Value(ValueType::Data), ptr_(obj.get_addr()), length_(obj.get_length()), type_(type::REF) {
 
 }
 
 Data& Data::operator=(const ref& obj) {
   type_ = type::REF;
-  ptr_ = get_addr(obj);
-  length_ = get_length(obj);
+  ptr_ = obj.get_addr();
+  length_ = obj.get_length();
   return *this;
 }
 
