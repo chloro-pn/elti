@@ -43,6 +43,8 @@ just run make. 配置库文件+头文件路径即可使用。
 ## BenchMark
 具体信息见benchmark/BENCH_MARK.md
 
+测试环境1:
+
 | 耗时(s) | elti | protobuf | rapidjson | nlohmann/json |
 :-: | :-: | :-: | :-: | :-: |
 测试数据1 | 0.060 | 0.0056 | 0.037 | 0.070
@@ -50,6 +52,13 @@ just run make. 配置库文件+头文件路径即可使用。
 测试数据3 | 0.365 | 0.235   | 3.68   | 7.225
 
 <img src="https://github.com/chloro-pn/elti/blob/master/benchmark/benchmark.png" width="600" height="360">
+
+测试环境2:
+| 耗时(s) | elti | protobuf |
+:-: | :-: | :-: |
+测试数据1 | 0.02 | 0.01 |
+测试数据2 | 0.05 | 0.02 |
+测试数据3 | 0.32 | 0.32 |
 
 ## TODO
 * 增加定位器定位结果到Value(Data, Map, Array)的转化操作，目前定位器对于数据的访问能力有限，例如不支持访问数组
