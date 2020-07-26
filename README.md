@@ -43,6 +43,8 @@ just run make. 配置库文件+头文件路径即可使用。
 ## BenchMark
 具体信息见benchmark/BENCH_MARK.md
 
+测试环境1:
+
 | 耗时(s) | elti | protobuf | rapidjson | nlohmann/json |
 :-: | :-: | :-: | :-: | :-: |
 测试数据1 | 0.060 | 0.0056 | 0.037 | 0.070
@@ -50,6 +52,13 @@ just run make. 配置库文件+头文件路径即可使用。
 测试数据3 | 0.365 | 0.235   | 3.68   | 7.225
 
 <img src="https://github.com/chloro-pn/elti/blob/master/benchmark/benchmark.png" width="600" height="360">
+
+测试环境2:
+| 耗时(s) | elti | protobuf |
+:-: | :-: | :-: |
+测试数据1 | 0.02 | 0.01 |
+测试数据2 | 0.05 | 0.02 |
+测试数据3 | 0.32 | 0.32 |
 
 ## TODO
 * 增加定位器定位结果到Value(Data, Map, Array)的转化操作，目前定位器对于数据的访问能力有限，例如不支持访问数组
@@ -211,4 +220,33 @@ int main() {
   elti::PositionerRoot pst(result.data());
   //使用定位器对象如同使用Root对象，但是定位器只会解析必要路径并定位数据，跳过不相关的数据。
   std::string book = pst["books"][elti::num(1)].get<std::string>();
+  ```
+  
+  ## 引用/0拷贝序列化
+  
+  elti内置了对std::string和std::vector<uint8_t>的引用实现：
+  ```c++
+  #include "elti/ref.h"
+  ...
+  std::string str(1024, 'a');
+  //使用ref接口，str对象需要保证生命周期至少为序列化之前有效。
+  //不会产生str->内部表示对象->result的拷贝操作，只会有str->result一次拷贝。
+  Data* data = makeData(ref(str));
+  Root root(data);
+  std::string result;
+  root.seri(result);
+
+  Root new_root;
+  new_root.parse(result.data());
+  REQUIRE(new_root.get<std::string>() == str);
+  ```
+  也可以通过实现以下接口为自定义的类提供引用/0拷贝初始化功能，见test/test_ref.cpp：
+  ```c++
+  namespace elti {
+  template<typename T>
+  const void* getAddr(const T& t);
+
+  template<typename T>
+  size_t getLength(const T& t);
+  }
   ```
