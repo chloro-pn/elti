@@ -9,6 +9,7 @@
 #include "element.h"
 #include "value_type.h"
 #include "seri_parse.h"
+#include "ref.h"
 
 namespace elti {
 class Value {
@@ -77,20 +78,35 @@ public:
 class Data : public Value {
 private:
   std::vector<uint8_t> data_;
+  //for ref.
+  const void* ptr_;
+  size_t length_;
+
+  enum class type { DATA, REF, INVALID };
+  type type_;
 
 public:
   Data();
 
-  template<typename T>
-  explicit Data(const T& obj) : Value(ValueType::Data) {
+  //万能引用的匹配能力过强，需要通过enable_if为ref提供特殊实现。
+  template<typename T,
+    typename std::enable_if<!std::is_same_v<ref, std::decay_t<T>>, int>::type = 0>
+  explicit Data(const T& obj) : Value(ValueType::Data), type_(type::DATA) {
     seri(obj, data_);
   }
 
-  template<typename T>
+  explicit Data(const ref& obj);
+
+  //万能引用的匹配能力过强，需要通过enable_if为ref提供特殊实现。
+  template<typename T, 
+    typename std::enable_if<!std::is_same_v<ref, std::decay_t<T>>, int>::type = 0>
   Data& operator=(T&& other) {
+    type_ = type::DATA;
     seri(std::forward<T>(other), data_);
     return *this;
   }
+
+  Data& operator=(const ref& obj);
 
   void valueParse(const char*& begin, size_t& offset);
 

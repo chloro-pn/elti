@@ -5,6 +5,7 @@
 #include <string>
 #include <cstring>
 #include "varint_num.h"
+#include "ref.h"
 
 namespace elti {
 template<typename T>

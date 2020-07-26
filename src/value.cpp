@@ -1,6 +1,8 @@
 #include "elti/value.h"
 #include "elti/util.h"
 #include <iterator> // std::advance.
+#include <cstdlib>
+#include <cstdio>
 
 namespace elti {
 Value::Value(ValueType type) : type_(type) {
@@ -14,8 +16,12 @@ void Value::valueParse(const char*& begin, size_t& offset) {
   else if(type_ == ValueType::Array) {
     static_cast<Array*>(this)->valueParse(begin, offset);
   }
-  else {
+  else if(type_ == ValueType::Data) {
     static_cast<Data*>(this)->valueParse(begin, offset);
+  }
+  else {
+    fprintf(stderr, "valueParse error value type.");
+    exit(-1);
   }
 }
 
@@ -26,8 +32,12 @@ void Value::valueSeri(std::string& result) {
   else if(type_ == ValueType::Array) {
     static_cast<Array*>(this)->valueSeri(result);
   }
-  else {
+  else if(type_ == ValueType::Data) {
     static_cast<Data*>(this)->valueSeri(result);
+  }
+  else {
+    fprintf(stderr, "valueSeri error value type.");
+    exit(-1);
   }
 }
 
@@ -145,8 +155,19 @@ Array::~Array() {
   }
 }
 
-Data::Data() : Value(ValueType::Data) {
+Data::Data() : Value(ValueType::Data), ptr_(nullptr), length_(0), type_(type::INVALID) {
 
+}
+
+Data::Data(const ref& obj) : Value(ValueType::Data), ptr_(get_addr(obj)), length_(get_length(obj)), type_(type::REF) {
+
+}
+
+Data& Data::operator=(const ref& obj) {
+  type_ = type::REF;
+  ptr_ = get_addr(obj);
+  length_ = get_length(obj);
+  return *this;
 }
 
 void Data::valueParse(const char*& begin, size_t& offset) {
@@ -155,14 +176,27 @@ void Data::valueParse(const char*& begin, size_t& offset) {
   memcpy(&(*data_.begin()), begin, size);
   begin += size;
   offset += size;
+  type_ = type::DATA;
 }
 
 void Data::valueSeri(std::string& result) {
-  uint32_t length = data_.size();
-  seriLength(length, result);
-  size_t old_len = result.size();
-  result.resize(result.size() + length);
-  memcpy(&(*(result.begin() + old_len)), &data_.front(), length);
+  if (type_ == type::DATA) {
+    uint32_t length = data_.size();
+    seriLength(length, result);
+    size_t old_len = result.size();
+    result.resize(result.size() + length);
+    memcpy(&(*(result.begin() + old_len)), &data_.front(), length);
+  }
+  else if (type_ == type::REF) {
+    seriLength(static_cast<uint64_t>(length_), result);
+    size_t old_len = result.size();
+    result.resize(result.size() + length_);
+    memcpy(&(*(result.begin() + old_len)), ptr_, length_);
+  }
+  else {
+    fprintf(stderr, "Data::valueSeri error.");
+    exit(-1);
+  }
 }
 
 size_t Data::useBytes() const {
