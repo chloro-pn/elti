@@ -250,3 +250,35 @@ int main() {
   size_t getLength(const T& t);
   }
   ```
+## 关于Root
+
+Root对象不可拷贝，只能移动。可以通过reset接口获得Value*类型的根对象，此时Root放弃该对象的管理（释放），
+可以将此对象作为一部分生成其他结构的数据，例：
+```c++
+  Array* array = makeArray();
+  array->push_back(makeData(true));
+  array->push_back(makeData("nanpang"));
+  Map* map = makeMap();
+  map->set("student", array);
+  //生成或者反序列化得到的Root对象
+  Root root(map);
+  //move操作
+  Root r2(std::move(root));
+  //r2放弃vp的管理权。
+  Value* vp = r2.reset();
+  //vp可以通过getValueAsXXX接口恢复为真实类型，并进行数据增加删除操作。
+  getValueAsMap(vp)->set("age", makeData(uint8_t(23)));
+  //构建新的Root对象
+  Root r3(vp);
+  std::string result;
+  r3.seri(result);
+
+  Root r4;
+  r4.parse(result.data());
+  //REQUIRE(r4["age"].get<uint8_t>() == 23);
+  //REQUIRE(r4["student"][num(1)].get<std::string>() == "nanpang");
+  //REQUIRE(r4["student"][num(0)].get<bool>() == true);
+  //REQUIRE(r4["student"].size() == 2);
+```
+
+解决了如下问题 : https://github.com/Tencent/rapidjson/issues/1736 

@@ -7,6 +7,7 @@
 namespace elti {
 class Value;
 class Element {
+  friend class Root;
   friend class Map;
   friend class Array;
   friend class Data;

@@ -8,6 +8,10 @@ class Root {
 private:
   Element root_;
 
+  Value* getValue() {
+    return root_.getValue();
+  }
+
 public:
   explicit Root(Value* value) : root_("/", value) {
 
@@ -15,8 +19,10 @@ public:
 
   Root() {}
 
-  Value* getValue() {
-    return root_.getValue();
+  Value* reset() {
+    Value* tmp = root_.getValue();
+    root_.v_ = nullptr;
+    return tmp;
   }
 
   void seri(std::string& result) {
