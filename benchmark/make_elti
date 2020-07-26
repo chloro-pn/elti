@@ -1,0 +1,1 @@
+g++ -o elti -I ../include -I ../third_party/varint/ -I ../third_party/catch2/ elti.cpp -L../src/ -lelti -std=c++11 -L../third_party/varint -lvarint
