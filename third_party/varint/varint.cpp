@@ -44,7 +44,7 @@ char* varint_encode(unsigned long long n, char* buf, int len, unsigned char* byt
   return buf;
 }
 
-unsigned long long varint_decode(char* buf, int len, unsigned char* bytes) {
+unsigned long long varint_decode(const char* buf, int len, unsigned char* bytes) {
   unsigned long long result = 0;
   int bits = 0;
   char *ptr = buf;

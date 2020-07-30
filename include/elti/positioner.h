@@ -21,7 +21,7 @@ public:
   template<typename T>
   T get() {
     assert(type_ == ValueType::Data);
-    return parse<T>(ptr_, total_size_);
+    return parse<T>(ptr_, static_cast<size_t>(total_size_));
   }
 
 private:

@@ -279,4 +279,102 @@ bool parse(const std::vector<uint8_t>& container) {
     return false;
   }
 }
+
+template<>
+std::string parse(const char* ptr, size_t n) {
+  return std::string(ptr, n);
+}
+
+template<>
+std::vector<uint8_t> parse(const char* ptr, size_t n) {
+  std::vector<uint8_t> result(n);
+  memcpy(&result.front(), ptr, n);
+  return result;
+}
+
+template<>
+int8_t parse(const char* ptr, size_t n) {
+  assert(n == sizeof(int8_t));
+  int8_t result;
+  memcpy(&result, ptr, n);
+  return result;
+}
+
+template<>
+uint8_t parse(const char* ptr, size_t n) {
+  assert(n == sizeof(uint8_t));
+  uint8_t result;
+  memcpy(&result, ptr, n);
+  return result;
+}
+
+template<>
+int16_t parse(const char* ptr, size_t n) {
+  assert(n == sizeof(int16_t));
+  int16_t result;
+  memcpy(&result, ptr, n);
+  return result;
+}
+
+template<>
+uint16_t parse(const char* ptr, size_t n) {
+  assert(n == sizeof(uint16_t));
+  uint16_t result;
+  memcpy(&result, ptr, n);
+  return result;
+}
+
+template<>
+int32_t parse(const char* ptr, size_t n) {
+  assert(n == sizeof(int32_t));
+  int32_t result;
+  memcpy(&result, ptr, n);
+  return result;
+}
+
+template<>
+uint32_t parse(const char* ptr, size_t n) {
+  assert(n == sizeof(uint32_t));
+  uint32_t result;
+  memcpy(&result, ptr, n);
+  return result;
+}
+
+template<>
+int64_t parse(const char* ptr, size_t n) {
+  assert(n == sizeof(int64_t));
+  int64_t result;
+  memcpy(&result, ptr, n);
+  return result;
+}
+
+template<>
+uint64_t parse(const char* ptr, size_t n) {
+  assert(n == sizeof(uint64_t));
+  uint64_t result;
+  memcpy(&result, ptr, n);
+  return result;
+}
+
+template<>
+varintNum parse(const char* ptr, size_t n) {
+  unsigned long long tmp;
+  unsigned char bytes;
+  tmp = varint_decode(ptr, n, &bytes);
+  assert(n == static_cast<size_t>(bytes));
+  return varintNum(tmp);
+}
+
+template<>
+bool parse(const char* ptr, size_t n) {
+  char c;
+  assert(n == sizeof(c));
+  memcpy(&c, ptr, n);
+  if (c != 0) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
 }

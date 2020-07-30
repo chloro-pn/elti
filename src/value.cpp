@@ -216,8 +216,12 @@ Value* valueFactory(ValueType type) {
   else if(type == ValueType::Array) {
     v_ = new Array();
   }
-  else {
+  else if(type == ValueType::Data) {
     v_ = new Data();
+  }
+  else {
+    fprintf(stderr, "valueFactory error.");
+    exit(-1);
   }
   return v_;
 }
