@@ -21,10 +21,7 @@ public:
   template<typename T>
   T get() {
     assert(type_ == ValueType::Data);
-    std::vector<uint8_t> tmp;
-    tmp.resize(total_size_);
-    memcpy(&tmp.front(), ptr_, total_size_);
-    return parse<T>(tmp);
+    return parse<T>(ptr_, total_size_);
   }
 
 private:

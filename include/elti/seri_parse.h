@@ -80,4 +80,46 @@ uint64_t parse(const std::vector<uint8_t>& container);
 
 template<>
 varintNum parse(const std::vector<uint8_t>& container);
+
+template<>
+bool parse(const std::vector<uint8_t>& container);
+
+template<typename T>
+T parse(const char* ptr, size_t n);
+
+template<>
+std::string parse(const char* ptr, size_t n);
+
+template<>
+std::vector<uint8_t> parse(const char* ptr, size_t n);
+
+template<>
+int8_t parse(const char* ptr, size_t n);
+
+template<>
+uint8_t parse(const char* ptr, size_t n);
+
+template<>
+int16_t parse(const char* ptr, size_t n);
+
+template<>
+uint16_t parse(const char* ptr, size_t n);
+
+template<>
+int32_t parse(const char* ptr, size_t n);
+
+template<>
+uint32_t parse(const char* ptr, size_t n);
+
+template<>
+int64_t parse(const char* ptr, size_t n);
+
+template<>
+uint64_t parse(const char* ptr, size_t n);
+
+template<>
+varintNum parse(const char* ptr, size_t n);
+
+template<>
+bool parse(const char* ptr, size_t n);
 }
