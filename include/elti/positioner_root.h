@@ -28,6 +28,10 @@ public:
     return Positioner(ptr_, type_).get<T>();
   }
 
+  ValueType getType() const {
+    return type_;
+  }
+
 private:
   const char* ptr_;
   ValueType type_;

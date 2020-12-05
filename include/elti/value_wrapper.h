@@ -34,11 +34,8 @@ public:
   }
 
   size_t useBytes() const;
-
   ValueWrapper operator[](const char* attr);
-
   size_t size() const;
-
   ValueWrapper operator[](num index);
 };
 }

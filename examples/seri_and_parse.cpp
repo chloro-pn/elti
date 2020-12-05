@@ -31,6 +31,13 @@ test parse(const std::vector<uint8_t>& container) {
   memcpy(&floor, &container.front(), sizeof(floor));
   return test(floor, "unknow", "unknow");
 }
+
+template<>
+test parse(const char* ptr, size_t n) {
+  int8_t floor;
+  memcpy(&floor, ptr, sizeof(floor));
+  return test(floor, "unknow", "unknow");
+}
 }
 
 int main() {
@@ -50,17 +57,9 @@ int main() {
   elti::Root root(message);
   std::string result;
   root.seri(result);
-/*
-  elti::Root new_root;
-  size_t offset = new_root.parse(result.data());
-  assert(offset == result.length());
 
-  test t = new_root["obj"].get<test>();
-*/
   elti::PositionerRoot pst(result.data());
-  //test t = pst[elti::num(0)].get<test>();
-  std::string book = pst["books"][elti::num(1)].get<std::string>();
-  //std::cout << "age : " << t.age << " name : " << t.name << std::endl;
-  std::cout << "book : " << book << std::endl;
+  test t = pst["position"].get<test>();
+  std::cout << (int)t.floor_ << std::endl;
   return 0;
 }

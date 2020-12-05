@@ -16,6 +16,8 @@ TEST_CASE("positioner test", "[positioner]") {
   std::string result;
   root.seri(result);
   PositionerRoot pst(result.data());
+  REQUIRE(pst.getType() == ValueType::Map);
+  REQUIRE(pst["name"].getType() == ValueType::Data);
   REQUIRE(pst["name"].get<std::string>() == "nanpang");
   REQUIRE(pst["nothing"].IsFind() == false);
   REQUIRE(pst["test"][num(1)].get<bool>() == false);

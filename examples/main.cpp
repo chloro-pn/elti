@@ -13,22 +13,24 @@
 // ARRAY : an array of Value
 #include <iostream>
 
+using namespace elti;
+
 int main() {
-  elti::Map* map = elti::makeMap();
-  map->set("name", elti::makeData("nanpang"));
-  map->set("age", elti::makeData(elti::varintNum(27)));
-  map->set("sex", elti::makeData(elti::varintNum(1)));
-  map->set("eof", elti::makeData(false));
-  elti::Data* data = elti::makeData(elti::varintNum(14553));
+  Map* map = makeMap();
+  map->set("name", makeData("nanpang"));
+  map->set("age", makeData(varintNum(27)));
+  map->set("sex", makeData(varintNum(1)));
+  map->set("eof", makeData(false));
+  Data* data = makeData(varintNum(14553));
   map->set("flow_id", data);
   std::string content(4096, 'a');
-  map->set("content", elti::makeData(content));
-  elti::Array* array = elti::makeArray();
+  map->set("content", makeData(content));
+  Array* array = makeArray();
   for(int32_t i= 0; i < 10; ++i) {
-    array->push_back(elti::makeData(i));
+    array->push_back(makeData(i));
   }
   map->set("ids", array);
-  elti::Root root(map);
+  Root root(map);
   std::string result;
   root.seri(result);
 
@@ -37,9 +39,9 @@ int main() {
   assert(offset == result.size());
   auto arr = new_root["ids"];
   for(int i = 0; i < arr.size(); ++i) {
-    std::cout << "ids index : " << i << " id : " << arr[elti::num(i)].get<int32_t>() << std::endl;
+    std::cout << "ids index : " << i << " id : " << arr[num(i)].get<int32_t>() << std::endl;
   }
-  std::cout << "flow id : " << new_root["flow_id"].get<elti::varintNum>().getNum() << std::endl;
+  std::cout << "flow id : " << new_root["flow_id"].get<varintNum>().getNum() << std::endl;
   std::cout << "name : " << new_root["name"].get<std::string>() << std::endl;
   std::cout << "content size : " << new_root["content"].get<std::string>().size() << std::endl;
   return 0;

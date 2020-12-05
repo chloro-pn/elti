@@ -17,10 +17,6 @@ public:
 
   }
 
-  ref(const char* ptr, size_t n) : ptr_(ptr), length_(n) {
-
-  }
-
   ref(const std::string& str) : ptr_(static_cast<const void*>(str.data())), length_(str.length()) {
 
   }

@@ -13,11 +13,11 @@ private:
   }
 
 public:
-  explicit Root(Value* value) : root_("/", value) {
+  explicit Root(Value* value) : root_("", value) {
 
   }
 
-  Root() {}
+  Root() = default;
 
   Value* reset() {
     Value* tmp = root_.getValue();

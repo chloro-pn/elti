@@ -25,9 +25,7 @@ public:
   }
 
   void valueParse(const char*& begin, size_t& offset);
-
   void valueSeri(std::string& result);
-
   Value() = default;
 };
 
@@ -40,17 +38,11 @@ private:
 public:
   Map();
   void valueParse(const char*& begin, size_t& offset);
-
   void valueSeri(std::string& result);
-
   void set(const char* attr, Value* v);
-
   void erase(const char* attr);
-
   bool contains(const char* attr);
-
   Value* operator[](const char* attr);
-
   ~Map() = default;
 };
 
@@ -60,19 +52,12 @@ private:
 
 public:
   Array();
-
   void valueParse(const char*& begin, size_t& offset);
-
   void valueSeri(std::string& result);
-
   uint64_t size();
-
   void push_back(Value* v);
-
   void erase(size_t n);
-
   Value* operator[](size_t index);
-
   ~Array();
 };
 
@@ -82,7 +67,6 @@ private:
   //for ref.
   const void* ptr_;
   size_t length_;
-
   enum class type { DATA, REF, INVALID };
   type type_;
 
@@ -108,13 +92,9 @@ public:
   }
 
   Data& operator=(const ref& obj);
-
   void valueParse(const char*& begin, size_t& offset);
-
   void valueSeri(std::string& result);
-
   size_t useBytes() const;
-
   std::vector<uint8_t>& bytesRef();
 
   template<typename T>
