@@ -1,0 +1,1 @@
+g++ -o protobuf protobuf.cpp message.pb.cc -L/usr/local/protobuf/lib -lprotobuf -I /usr/local/protobuf/include -std=c++11 -lpthread

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en"><meta charset="utf-8" />
+
+  <title>elti总揽 - elti document</title>
+
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" href="https://chloro-pn.github.io/elti/css/latex.css" />
+<link rel="stylesheet" href="https://chloro-pn.github.io/elti/css/main.css" />
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<meta name="generator" content="Hugo 0.83.1" /><body>
+
+
+
+
+
+
+<header>
+  <nav class="navbar">
+  <div class="nav">
+    
+
+    <ul class="nav-links">
+      
+    </ul>
+  </div>
+</nav>
+  <div class="intro-header">
+    <div class="container">
+      <div class="posts-heading">
+        
+          <h1>elti总揽</h1>
+          
+        
+      </div>
+    </div>
+  </div>
+</header>
+<div id="content">
+  <div class="container" role="main">
+    <article class="article" class="blog-post">
+      <div class="postmeta">
+        <span class="meta-post">
+  <i class="fa fa-calendar-alt"></i>Jun 6, 2021
+  
+</span>
+      </div>
+      <br>
+      
+    <p>elti是一个序列化/反序列化协议与实现，使用c++11开发。</p>
+<h2 id="格式">格式</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">Element :<span style="color:#f92672">=</span> Key : Value
+
+Value   :<span style="color:#f92672">=</span> Map
+         <span style="color:#f92672">|</span> Array
+         <span style="color:#f92672">|</span> Data
+
+Map     :<span style="color:#f92672">=</span> { Element }
+Array   :<span style="color:#f92672">=</span> { Value }
+Data    :<span style="color:#f92672">=</span> { byte  }
+</code></pre></div><h2 id="支持平台">支持平台</h2>
+<p>linux macOS</p>
+<h2 id="build">build</h2>
+<ul>
+<li>下载elti项目</li>
+<li><code>cd elti</code></li>
+<li><code>make -j4</code></li>
+<li>将头文件路径:/&hellip;/elti/include加入你的项目；将库文件/&hellip;/elti/src/libelti.a加入你的项目。</li>
+<li><code>#include &quot;elti.h&quot;</code></li>
+</ul>
+<h2 id="test">test</h2>
+<p><code>make test</code>(after make -j4)</p>
+<h2 id="第三方库使用">第三方库使用</h2>
+<ul>
+<li>使用<a href="https://github.com/sorribas/varint.c">varin.c</a>做变长编码</li>
+<li>使用<a href="https://github.com/catchorg/Catch2">Catch2</a>做单元测试</li>
+<li>使用<a href="https://github.com/ReneNyffenegger/cpp-base64">cpp-base64</a>做二进制数据编码</li>
+</ul>
+<h2 id="easy-to-use">easy to use</h2>
+<p>序列化：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;elti.h&#34;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">using</span> <span style="color:#66d9ef">namespace</span> elti;
+...
+std<span style="color:#f92672">::</span>unique_ptr<span style="color:#f92672">&lt;</span>Value<span style="color:#f92672">&gt;</span> map <span style="color:#f92672">=</span> makeMap();
+map<span style="color:#f92672">-&gt;</span>set(<span style="color:#e6db74">&#34;name&#34;</span>, makeData(<span style="color:#e6db74">&#34;bob&#34;</span>));
+map<span style="color:#f92672">-&gt;</span>set(<span style="color:#e6db74">&#34;age&#34;</span>, makeData(<span style="color:#66d9ef">static_cast</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">uint8_t</span><span style="color:#f92672">&gt;</span>(<span style="color:#ae81ff">25</span>)));
+map<span style="color:#f92672">-&gt;</span>set(<span style="color:#e6db74">&#34;married&#34;</span>, makeData(false));
+
+Elti <span style="color:#a6e22e">el</span>(std<span style="color:#f92672">::</span>move(map));
+std<span style="color:#f92672">::</span>string result <span style="color:#f92672">=</span> el.seriToString();
+</code></pre></div><p>反序列化：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;elti.h&#34;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">using</span> <span style="color:#66d9ef">namespace</span> elti;
+...
+<span style="color:#66d9ef">auto</span> rs <span style="color:#f92672">=</span> Elti<span style="color:#f92672">::</span>parseToElti(result.data());
+assert(rs.first <span style="color:#f92672">==</span> result.size());
+ValueWrapper root <span style="color:#f92672">=</span> rs.second.getRoot();
+
+assert(root[<span style="color:#e6db74">&#34;name&#34;</span>].get<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span>() <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;bob&#34;</span>);
+assert(root[<span style="color:#e6db74">&#34;age&#34;</span>].get<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">uint8_t</span><span style="color:#f92672">&gt;</span>() <span style="color:#f92672">==</span> <span style="color:#ae81ff">25</span>);
+assert(root[<span style="color:#e6db74">&#34;married&#34;</span>].get<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">bool</span><span style="color:#f92672">&gt;</span>() <span style="color:#f92672">==</span> false);
+</code></pre></div>
+
+
+      
+        <div class="blog-tags">
+          
+            <a href="https://chloro-pn.github.io/elti//tags/elti/">elti</a>&nbsp;
+          
+        </div>
+      
+    </article>
+    
+  </div>
+
+        </div><footer>
+  <div class="container">
+    <p class="credits copyright">
+      <p class="credits theme-by">
+        Powered By <a href="https://gohugo.io">Hugo</a>&nbsp;/&nbsp;Theme&nbsp;<a href="https://github.com/HelloRusk/HugoTeX">HugoTeX</a>
+        <br>
+        <a href="https://chloro-pn.github.io/elti/about">chloro-pn</a>
+        &copy;
+        2021
+      </p>
+  </div>
+</footer></body>
+</html>

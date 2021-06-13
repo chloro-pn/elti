@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en"><meta charset="utf-8" />
+
+  <title>quick start - elti document</title>
+
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" href="https://chloro-pn.github.io/elti/css/latex.css" />
+<link rel="stylesheet" href="https://chloro-pn.github.io/elti/css/main.css" />
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<meta name="generator" content="Hugo 0.83.1" /><body>
+
+
+
+
+
+
+<header>
+  <nav class="navbar">
+  <div class="nav">
+    
+
+    <ul class="nav-links">
+      
+    </ul>
+  </div>
+</nav>
+  <div class="intro-header">
+    <div class="container">
+      <div class="posts-heading">
+        
+          <h1>quick start</h1>
+          
+        
+      </div>
+    </div>
+  </div>
+</header>
+<div id="content">
+  <div class="container" role="main">
+    <article class="article" class="blog-post">
+      <div class="postmeta">
+        <span class="meta-post">
+  <i class="fa fa-calendar-alt"></i>Jun 6, 2021
+  
+</span>
+      </div>
+      <br>
+      
+    <p>开始使用elti。</p>
+<h2 id="准备工作">准备工作</h2>
+<p>在阅读本文前，确保你已经构建elti并加入到您的项目，同时你的c++编译器支持至少c++11标准。</p>
+<h2 id="第一步">第一步</h2>
+<p>现在你的项目中有一些需要序列化的数据，包括文本数据和二进制数据，你想把他们通过网络传输到其他节点，或者存储在
+磁盘中。不妨假设这些数据如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">std<span style="color:#f92672">::</span>string name;
+<span style="color:#66d9ef">uint32_t</span> id;
+<span style="color:#66d9ef">bool</span> is_man;
+std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">uint8_t</span><span style="color:#f92672">&gt;</span> bytes;
+</code></pre></div><p>首先，使用elti将这些数据序列化并存储在一个Map、Array或者Data对象中：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;elti.h&#34;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() {
+  ...
+  std<span style="color:#f92672">::</span>unique_ptr<span style="color:#f92672">&lt;</span>elti<span style="color:#f92672">::</span>Map<span style="color:#f92672">&gt;</span> map <span style="color:#f92672">=</span> elti<span style="color:#f92672">::</span>makeMap();
+  map<span style="color:#f92672">-&gt;</span>set(<span style="color:#e6db74">&#34;name&#34;</span>, elti<span style="color:#f92672">::</span>makeData(name));
+  map<span style="color:#f92672">-&gt;</span>set(<span style="color:#e6db74">&#34;id&#34;</span>, elti<span style="color:#f92672">::</span>makeData(id));
+  map<span style="color:#f92672">-&gt;</span>set(<span style="color:#e6db74">&#34;is_man&#34;</span>, elti<span style="color:#f92672">::</span>makeData(is_man));
+  map<span style="color:#f92672">-&gt;</span>set(<span style="color:#e6db74">&#34;bytes&#34;</span>, elti<span style="color:#f92672">::</span>makeData(bytes)); <span style="color:#75715e">// 或者std::move(bytes)，如果你不再需要这些数据的话。
+</span></code></pre></div><p>这里出现了一些类型和函数，下面进行解释：elti使用三种类型的结构来组织需要序列化的数据，分别为Map, Array和Data，这三种类型
+都属于Value类型，如果你了解面向对象的范式的话，可以将其理解为基类和子类的关系。一个Key和一个Value类型组合成一个Element类型，
+Map类型即为Element类型的集合；Array类型即为Value类型的集合；Data类型作为基本类型，由一个byte数组组成。</p>
+<p>这里的Element类型作为内部类型，并不开放给用户使用。</p>
+<p>当你要在程序中构造这三种类型的对象时，使用如下接口函数：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">namespace</span> elti {
+<span style="color:#66d9ef">template</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span>... Args<span style="color:#f92672">&gt;</span>
+std<span style="color:#f92672">::</span>unique_ptr<span style="color:#f92672">&lt;</span>Data<span style="color:#f92672">&gt;</span> makeData(Args<span style="color:#f92672">&amp;&amp;</span>... args);
+
+std<span style="color:#f92672">::</span>unique_ptr<span style="color:#f92672">&lt;</span>Map<span style="color:#f92672">&gt;</span> makeMap();
+
+std<span style="color:#f92672">::</span>unique_ptr<span style="color:#f92672">&lt;</span>Array<span style="color:#f92672">&gt;</span> makeArray();
+}
+</code></pre></div><p>这三种类型的使用会在后面文章中详细介绍，这里仅介绍涉及到的set函数：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">void</span> Map<span style="color:#f92672">::</span>set(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span><span style="color:#f92672">*</span> attr, std<span style="color:#f92672">::</span>unique_ptr<span style="color:#f92672">&lt;</span>Value<span style="color:#f92672">&gt;&amp;&amp;</span> v);
+</code></pre></div><p>本函数将在Map对象中添加一个由Key和Value组成的Element对象，第一个参数需要是c式字符串(本项目中的Key类型由字符串类型构造，两者基本等价)，第二个参数为以上三个接口函数获得的Map、Array或者Data对象。
+在插入之前，本函数会执行一次删除操作，确保Key的唯一性。</p>
+<h2 id="第二步">第二步</h2>
+<p>在将需要序列化的数据通过Map、Array和Data这三种类型构建后，使用elti构建一个Elti对象,并通过该对象的<code>seriToString()</code>方法执行序列化操作：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() {
+...
+  elti<span style="color:#f92672">::</span>Elti el(std<span style="color:#f92672">::</span>move(map));
+  std<span style="color:#f92672">::</span>string result <span style="color:#f92672">=</span> el.seriToString();
+</code></pre></div><p>使用智能指针而不是原始指针避免了以下错误:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// 错误，相互持有。
+</span><span style="color:#75715e"></span>elti<span style="color:#f92672">::</span>Map<span style="color:#f92672">*</span> map <span style="color:#f92672">=</span> elti<span style="color:#f92672">::</span>makeMap();
+elti<span style="color:#f92672">::</span>Array<span style="color:#f92672">*</span> array <span style="color:#f92672">=</span> elti<span style="color:#f92672">::</span>makeArray();
+map<span style="color:#f92672">-&gt;</span>set(<span style="color:#e6db74">&#34;arr&#34;</span>, array);
+array<span style="color:#f92672">-&gt;</span>push_back(map);
+
+<span style="color:#75715e">// 错误，重复持有
+</span><span style="color:#75715e"></span>elti<span style="color:#f92672">::</span>Map<span style="color:#f92672">*</span> map <span style="color:#f92672">=</span> elti<span style="color:#f92672">::</span>makeMap();
+elti<span style="color:#f92672">::</span>Data<span style="color:#f92672">*</span> v <span style="color:#f92672">=</span> makeData(<span style="color:#e6db74">&#34;hello&#34;</span>);
+map<span style="color:#f92672">-&gt;</span>set(<span style="color:#e6db74">&#34;v1&#34;</span>, v);
+map<span style="color:#f92672">-&gt;</span>set(<span style="color:#e6db74">&#34;v2&#34;</span>, v);
+
+<span style="color:#75715e">// 错误，一个Value类型的对象不能被多个Elti对象持有。
+</span><span style="color:#75715e"></span>elti<span style="color:#f92672">::</span>Elti el1(map);
+elti<span style="color:#f92672">::</span>Elti el2(map);
+</code></pre></div><h2 id="第三步">第三步</h2>
+<p>通过以下函数执行反序列化操作：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">static</span> std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span>size_t, Elti<span style="color:#f92672">&gt;</span> parseToElti(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span><span style="color:#f92672">*</span> ptr, ParseRef ref <span style="color:#f92672">=</span> ParseRef<span style="color:#f92672">::</span>Off); <span style="color:#75715e">// 函数声明
+</span><span style="color:#75715e"></span>...
+<span style="color:#66d9ef">auto</span> rs <span style="color:#f92672">=</span> elti<span style="color:#f92672">::</span>Elti<span style="color:#f92672">::</span>parseToElti(result.data());
+assert(rs.first <span style="color:#f92672">==</span> result.size());
+elti<span style="color:#f92672">::</span>ValueWrapper root <span style="color:#f92672">=</span> rs.second.getRoot();
+assert(root[<span style="color:#e6db74">&#34;name&#34;</span>].get<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span>() <span style="color:#f92672">==</span> name);
+assert(root[<span style="color:#e6db74">&#34;id&#34;</span>].get<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">uint32_t</span><span style="color:#f92672">&gt;</span>() <span style="color:#f92672">==</span> id);
+assert(root[<span style="color:#e6db74">&#34;is_man&#34;</span>].get<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">bool</span><span style="color:#f92672">&gt;</span>() <span style="color:#f92672">==</span> is_man);
+</code></pre></div><p><code>parseToElti</code>函数的第一个参数为序列化数据的首地址，第二个参数暂且忽略，使用默认参数即可。</p>
+<p>该函数返回值的<code>first</code>成员为反序列化数据的字节数，如果没有错误发生的话该值应该与<code>result.size()</code>相等，<code>second</code>成员为Elti对象，通过调用该对象的<code>getRoot()</code>方法，获得真正能够访问序列化数据的对象root。</p>
+<p>就像它的类型名称ValueWrapper一样，此类型封装了一个Value对象，并提供了数据访问的方法，通过使用<code>operator[](const char* attr)</code>方法可获得Map类型存储的对应Key值的Value对象，通过使用<code>get()</code>方法可获得Data类型存储的byte数组(你需要提供一个模板类型来指明将byte数组反序列化为何种类型)。</p>
+<h2 id="end">End</h2>
+<p>quick_start结束，更为详细的介绍见后续文章。</p>
+
+
+      
+        <div class="blog-tags">
+          
+            <a href="https://chloro-pn.github.io/elti//tags/elti/">elti</a>&nbsp;
+          
+        </div>
+      
+    </article>
+    
+  </div>
+
+        </div><footer>
+  <div class="container">
+    <p class="credits copyright">
+      <p class="credits theme-by">
+        Powered By <a href="https://gohugo.io">Hugo</a>&nbsp;/&nbsp;Theme&nbsp;<a href="https://github.com/HelloRusk/HugoTeX">HugoTeX</a>
+        <br>
+        <a href="https://chloro-pn.github.io/elti/about">chloro-pn</a>
+        &copy;
+        2021
+      </p>
+  </div>
+</footer></body>
+</html>

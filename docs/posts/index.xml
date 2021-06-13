@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on elti document</title>
+    <link>https://chloro-pn.github.io/elti/posts/</link>
+    <description>Recent content in Posts on elti document</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Wed, 09 Jun 2021 14:47:21 +0800</lastBuildDate><atom:link href="https://chloro-pn.github.io/elti/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Array类型介绍</title>
+      <link>https://chloro-pn.github.io/elti/posts/array%E7%B1%BB%E5%9E%8B%E4%BB%8B%E7%BB%8D/</link>
+      <pubDate>Wed, 09 Jun 2021 14:47:21 +0800</pubDate>
+      
+      <guid>https://chloro-pn.github.io/elti/posts/array%E7%B1%BB%E5%9E%8B%E4%BB%8B%E7%BB%8D/</guid>
+      <description>&lt;p&gt;Array类型的对象持有一个Value数组，数组中可以有Data对象，也可以有Array对象和Map对象。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Value类型介绍</title>
+      <link>https://chloro-pn.github.io/elti/posts/value%E7%B1%BB%E5%9E%8B%E4%BB%8B%E7%BB%8D/</link>
+      <pubDate>Wed, 09 Jun 2021 08:23:55 +0800</pubDate>
+      
+      <guid>https://chloro-pn.github.io/elti/posts/value%E7%B1%BB%E5%9E%8B%E4%BB%8B%E7%BB%8D/</guid>
+      <description>&lt;p&gt;本文介绍elti项目中三种Value类型相关的信息。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>elti总揽</title>
+      <link>https://chloro-pn.github.io/elti/posts/elti%E6%80%BB%E8%A7%88/</link>
+      <pubDate>Sun, 06 Jun 2021 08:12:06 +0800</pubDate>
+      
+      <guid>https://chloro-pn.github.io/elti/posts/elti%E6%80%BB%E8%A7%88/</guid>
+      <description>&lt;p&gt;elti是一个序列化/反序列化协议与实现，使用c++11开发。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>quick start</title>
+      <link>https://chloro-pn.github.io/elti/posts/quick_start/</link>
+      <pubDate>Sun, 06 Jun 2021 08:12:06 +0800</pubDate>
+      
+      <guid>https://chloro-pn.github.io/elti/posts/quick_start/</guid>
+      <description>&lt;p&gt;开始使用elti。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

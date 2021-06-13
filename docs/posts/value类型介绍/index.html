@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en"><meta charset="utf-8" />
+
+  <title>Value类型介绍 - elti document</title>
+
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" href="https://chloro-pn.github.io/elti/css/latex.css" />
+<link rel="stylesheet" href="https://chloro-pn.github.io/elti/css/main.css" />
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<meta name="generator" content="Hugo 0.83.1" /><body>
+
+
+
+
+
+
+<header>
+  <nav class="navbar">
+  <div class="nav">
+    
+
+    <ul class="nav-links">
+      
+    </ul>
+  </div>
+</nav>
+  <div class="intro-header">
+    <div class="container">
+      <div class="posts-heading">
+        
+          <h1>Value类型介绍</h1>
+          
+        
+      </div>
+    </div>
+  </div>
+</header>
+<div id="content">
+  <div class="container" role="main">
+    <article class="article" class="blog-post">
+      <div class="postmeta">
+        <span class="meta-post">
+  <i class="fa fa-calendar-alt"></i>Jun 9, 2021
+  
+</span>
+      </div>
+      <br>
+      
+    <p>本文介绍elti项目中三种Value类型相关的信息。</p>
+<h2 id="eltidata">elti::Data</h2>
+<p>Data的构造函数接受一个待序列化的对象，并将其转发给seri函数。</p>
+<p>Data构造函数接受的类型有：</p>
+<ul>
+<li><code>char*</code></li>
+<li><code>const char*</code></li>
+<li><code>char(&amp;)[n]</code></li>
+<li><code>const char(&amp;)[n]</code></li>
+<li><code>std::string</code></li>
+<li><code>std::vector&lt;uint8_t&gt;</code></li>
+<li><code>int8_t uint8_t ... int64_t uint64_t</code></li>
+<li><code>varintNum</code></li>
+<li><code>bool</code></li>
+<li>实现了函数模板seri特化版本的对应的类型（用户可以在elti命名空间内实现其特化版本，就像使用std::swap一样）</li>
+</ul>
+<p>seri模板声明如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">template</span> <span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span> T<span style="color:#f92672">&gt;</span>
+<span style="color:#66d9ef">void</span> seri(<span style="color:#66d9ef">const</span> T<span style="color:#f92672">&amp;</span> obj, std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">uint8_t</span><span style="color:#f92672">&gt;&amp;</span> container);
+</code></pre></div><p>通过使用get方法将Data内部的byte数组转化为相应类型，get内部会进行断言，确保序列化和反序列化的类型相同，该方法的声明如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">template</span> <span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span> T<span style="color:#f92672">&gt;</span>
+T get() <span style="color:#66d9ef">const</span>;
+</code></pre></div><p>用户提供的T类型不能是引用类型或指针类型，否则会引发静态断言失败。</p>
+<p>通过使用bytesRef方法可以获得内部byte数组的引用，便于用户使用，该方法的声明如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">uint8_t</span><span style="color:#f92672">&gt;&amp;</span> bytesRef() <span style="color:#66d9ef">const</span>;
+</code></pre></div><p>这个方法没有额外开销，Data内部就是使用std::vector&lt;uint8_t&gt;存储byte数组。</p>
+<p>用户不应该直接通过构造函数获得Data类型的对象，而是使用<a href="https://chloro-pn.github.io/elti/posts/quick_start/">elti::makeData()接口函数</a>。</p>
+<h2 id="eltiarray">elti::Array</h2>
+<p>Array类型的对象持有一个Value数组，数组中可以有Data对象，也可以有Array对象和Map对象，按照下标索引进行定位。
+使用elti::makeArray()接口函数创建一个空的Array对象，Array类型公开的方法有：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// 返回Value数组元素个数
+</span><span style="color:#75715e"></span>size_t <span style="color:#a6e22e">size</span>() <span style="color:#66d9ef">const</span>;
+<span style="color:#75715e">// 在数组末尾插入Value对象
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">push_back</span>(std<span style="color:#f92672">::</span>unique_ptr<span style="color:#f92672">&lt;</span>Value<span style="color:#f92672">&gt;&amp;&amp;</span> v);
+<span style="color:#75715e">// 删除下标索引为n的Value对象，如果对应的Value对象不存在，则直接返回。
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">erase</span>(size_t n);
+</code></pre></div><h2 id="eltimap">elti::Map</h2>
+<p>Map类型的对象持有一个Key:Value对的集合，集合中的Value对象通过Key进行定位。
+使用elti::makeMap()接口函数创建一个空的Map对象，Map类型公开的方法有：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// 插入一个Key-Value对，其中attr必须是c式字符串，在插入之前执行一次erase操作，确保Key的唯一性。
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">set</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span><span style="color:#f92672">*</span> attr, std<span style="color:#f92672">::</span>unique_ptr<span style="color:#f92672">&lt;</span>Value<span style="color:#f92672">&gt;&amp;&amp;</span> v);
+<span style="color:#75715e">// 删除Key为attr的Key-Value对，如果不存在则直接返回
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">erase</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span><span style="color:#f92672">*</span> attr);
+<span style="color:#75715e">// 查询是否含有Key为attr的Value对象
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">contains</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span><span style="color:#f92672">*</span> attr) <span style="color:#66d9ef">const</span>;
+</code></pre></div><h2 id="end">End</h2>
+<p>以上为elti中三种Value对象公开的方法介绍(并不是全部)。elti还提供了Value对象的toJson()方法，用以将二进制数据编码为文本数据，便于调试，这部分将会单独介绍。</p>
+
+
+      
+        <div class="blog-tags">
+          
+            <a href="https://chloro-pn.github.io/elti//tags/elti/">elti</a>&nbsp;
+          
+        </div>
+      
+    </article>
+    
+  </div>
+
+        </div><footer>
+  <div class="container">
+    <p class="credits copyright">
+      <p class="credits theme-by">
+        Powered By <a href="https://gohugo.io">Hugo</a>&nbsp;/&nbsp;Theme&nbsp;<a href="https://github.com/HelloRusk/HugoTeX">HugoTeX</a>
+        <br>
+        <a href="https://chloro-pn.github.io/elti/about">chloro-pn</a>
+        &copy;
+        2021
+      </p>
+  </div>
+</footer></body>
+</html>
