@@ -8,43 +8,6 @@
 #include <cstdlib>
 
 namespace elti {
-uint64_t parseLength(const char*& begin, size_t& offset) {
-  unsigned long long tmp;
-  unsigned char bytes;
-  tmp = varint_decode((char*)begin, 128, &bytes);
-  begin += bytes;
-  offset += bytes;
-  return tmp;
-}
-
-DataType parseDataType(const char*& begin, size_t& offset) {
-  uint8_t tmp = static_cast<uint8_t>(*begin);
-  begin += sizeof(tmp);
-  offset += sizeof(tmp);
-  return tmp;
-}
-
-ValueType parseValueType(const char*& begin, size_t& offset) {
-  char tmp;
-  memcpy(&tmp, begin, sizeof(tmp));
-  begin += sizeof(tmp);
-  offset += sizeof(tmp);
-  if(tmp == MAP_TYPE) {
-    return ValueType::Map;
-  }
-  else if(tmp == ARRAY_TYPE) {
-    return ValueType::Array;
-  }
-  else if(tmp == DATA_TYPE) {
-    return ValueType::Data;
-  }
-  else {
-    // 在序列化后的数据中不应该出现DataRef类型。
-    fprintf(stderr, "error type : %d\n", tmp);
-    exit(-1);
-  }
-}
-
 Map* getValueAsMap(Value* v) {
   assert(v->getType() == ValueType::Map);
   return static_cast<Map*>(v);

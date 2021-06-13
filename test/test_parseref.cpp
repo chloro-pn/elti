@@ -18,7 +18,7 @@ TEST_CASE("parseref test", "[parse]") {
   std::string result;
   el.seriTo<std::string>(result);
 
-  auto rs = Elti::parseToElti(result.data(), ParseRef::On);
+  auto rs = Elti::parseToElti(InnerWrapper(result), ParseRef::On);
   REQUIRE(rs.first == result.size());
   ValueWrapper root = rs.second.getRoot();
   REQUIRE(root.getType() == "map");

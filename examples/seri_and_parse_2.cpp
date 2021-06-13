@@ -33,7 +33,7 @@ int main() {
   std::string result;
   el.seriTo<std::string>(result);
 
-  auto rs = elti::Elti::parseToElti(result.data());
+  auto rs = elti::Elti::parseToElti(elti::InnerWrapper(result));
   assert(rs.first == result.size());
   T1 t2 = T1::parseFromValue(rs.second.getRoot());
   std::cout << "t2.age should be 18. " << (int)t2.age << std::endl;

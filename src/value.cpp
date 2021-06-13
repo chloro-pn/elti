@@ -10,27 +10,6 @@ Value::Value(ValueType type) : type_(type) {
 
 }
 
-void Value::valueParse(const char*& begin, size_t& offset, ParseRef ref) {
-  if(type_ == ValueType::Map) {
-    static_cast<Map*>(this)->valueParse(begin, offset, ref);
-  }
-  else if(type_ == ValueType::Array) {
-    static_cast<Array*>(this)->valueParse(begin, offset, ref);
-  }
-  else if(type_ == ValueType::Data) {
-    assert(ref == ParseRef::Off);
-    static_cast<Data*>(this)->valueParse(begin, offset);
-  }
-  else if(type_ == ValueType::DataRef) {
-    assert(ref == ParseRef::On);
-    static_cast<DataRef*>(this)->valueParse(begin, offset);
-  }
-  else {
-    fprintf(stderr, "valueParse error value type.");
-    exit(-1);
-  }
-}
-
 std::string Value::toJson(const BytesEncode& be) const {
   if(type_ == ValueType::Map) {
     return static_cast<const Map*>(this)->toJson(be);
@@ -52,18 +31,6 @@ std::string Value::toJson(const BytesEncode& be) const {
 
 Map::Map() : Value(ValueType::Map) {
 
-}
-
-void Map::valueParse(const char*& begin, size_t& offset, ParseRef ref) {
-  kvs_.clear();
-  parseLength(begin, offset); //total size.
-  uint64_t count = parseLength(begin, offset);
-  for(uint64_t i = 0; i < count; ++i) {
-    Element tmp;
-    tmp.parse(begin, offset, ref);
-    CHECK_PTR(begin);
-    kvs_.push_back(std::move(tmp));
-  }
 }
 
 std::string Map::toJson(const BytesEncode& be) const {
@@ -122,18 +89,6 @@ Array::Array() : Value(ValueType::Array) {
 
 }
 
-void Array::valueParse(const char*& begin, size_t& offset, ParseRef ref) {
-  vs_.clear();
-  parseLength(begin, offset); //total size.
-  uint64_t count = parseLength(begin, offset);
-  for(uint64_t i = 0; i < count; ++i) {
-    ValueType type = parseValueType(begin, offset);
-    std::unique_ptr<Value> v = valueFactory(type, ref);
-    v->valueParse(begin, offset, ref);
-    vs_.push_back(std::move(v));
-  }
-}
-
 std::string Array::toJson(const BytesEncode& be) const {
   std::string result;
   result.push_back('[');
@@ -182,19 +137,6 @@ Data::Data() : Value(ValueType::Data), data_(), data_type_(ELTI_INVALID) {
 
 }
 
-// data := | total_length | data_type | ... bytes ... |
-//             variant          1      total_length - 1
-void Data::valueParse(const char*& begin, size_t& offset) {
-  uint64_t size = parseLength(begin, offset);
-  data_type_ = parseDataType(begin, offset);
-  assert(size > 1);
-  size = size - 1;
-  data_.resize(size);
-  memcpy(&(*data_.begin()), begin, size);
-  begin += size;
-  offset += size;
-}
-
 //Data不携带类型信息，这里如何处理。
 std::string Data::toJson(const BytesEncode& be) const {
   return detail::to_json(data_type_, reinterpret_cast<const char*>(&data_.front()), data_.size(), be);
@@ -202,14 +144,6 @@ std::string Data::toJson(const BytesEncode& be) const {
 
 const std::vector<uint8_t>& Data::bytesRef() const {
   return data_;
-}
-
-void DataRef::valueParse(const char *&begin, size_t &offset) {
-  length_ = parseLength(begin, offset) - 1;
-  data_type_ = parseDataType(begin, offset);
-  ptr_ = begin;
-  begin += length_;
-  offset += length_;
 }
 
 std::string DataRef::toJson(const BytesEncode& be) const {

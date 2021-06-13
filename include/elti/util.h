@@ -18,11 +18,44 @@ namespace elti {
   class Data;
   class DataRef;
 
-  ValueType parseValueType(const char*& begin, size_t& offset);
+  template<typename Inner>
+  uint64_t parseLength(const Inner& inner, size_t& offset) {
+    unsigned long long tmp;
+    unsigned char bytes;
+    tmp = varint_decode(inner.curAddr(), 128, &bytes);
+    inner.skip(bytes);
+    offset += bytes;
+    return tmp;
+  }
 
-  DataType parseDataType(const char*& begin, size_t& offset);
+  template<typename Inner>
+  DataType parseDataType(const Inner& inner, size_t& offset) {
+    uint8_t tmp = static_cast<uint8_t>(*inner.curAddr());
+    inner.skip(sizeof(tmp));
+    offset += sizeof(tmp);
+    return tmp;
+  }
 
-  uint64_t parseLength(const char*& begin, size_t& offset);
+  template<typename Inner>
+  ValueType parseValueType(const Inner& inner, size_t& offset) {
+    char tmp = *inner.curAddr();
+    inner.skip(sizeof(tmp));
+    offset += sizeof(tmp);
+    if(tmp == MAP_TYPE) {
+      return ValueType::Map;
+    }
+    else if(tmp == ARRAY_TYPE) {
+      return ValueType::Array;
+    }
+    else if(tmp == DATA_TYPE) {
+      return ValueType::Data;
+    }
+    else {
+      // 在序列化后的数据中不应该出现DataRef类型。
+      fprintf(stderr, "parseValueType error, invalid type_id : %d\n", tmp);
+      exit(-1);
+    }
+  }
 
   template<typename Outer>
   void seriValueType(ValueType type, Outer& outer) {
@@ -64,10 +97,4 @@ namespace elti {
   Data* getValueAsData(Value* v);
 
   DataRef* getValueAsDataRef(Value* v);
-
-#define CHECK_PTR(x) \
-if((x) == nullptr) {\
-  fprintf(stderr, "parse error."); \
-  exit(-1); \
-}
 }

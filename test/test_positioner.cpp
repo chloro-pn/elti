@@ -16,7 +16,8 @@ TEST_CASE("positioner test", "[positioner]") {
   Elti root(std::move(map));
   std::string result;
   root.seriTo<std::string>(result);
-  Positioner pst = elti::Elti::parseToPositioner(result.data());
+  InnerWrapper iw(result);
+  Positioner<InnerWrapper> pst = elti::Elti::parseToPositioner(iw);
   REQUIRE(pst.getType() == ValueType::Map);
   REQUIRE(pst["name"].getType() == ValueType::Data);
   REQUIRE(pst["name"].get<std::string>() == "bob");
@@ -25,3 +26,4 @@ TEST_CASE("positioner test", "[positioner]") {
   REQUIRE(pst["test"][num(3)].IsFind() == false);
   REQUIRE(pst["t2"].IsFind() == false);
 }
+

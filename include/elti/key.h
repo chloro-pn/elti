@@ -17,9 +17,16 @@ public:
     return key_ == other.key_;
   }
 
-  void keyParse(const char*& ptr, size_t& offset);
-  template<typename Outer>
+  template<typename Inner>
+  void keyParse(const Inner& inner, size_t& offset) {
+     uint64_t length = parseLength(inner, offset);
+     key_.resize(length);
+     memcpy(&(*key_.begin()), inner.curAddr(), length);
+     inner.skip(length);
+     offset += length;
+  }
 
+  template<typename Outer>
   void keySeri(Outer& outer) const {
     uint32_t key_length = key_.size();
     seriLength(key_length, outer);

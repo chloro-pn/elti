@@ -15,6 +15,9 @@
 
 namespace elti {
 class Value;
+std::unique_ptr<Value> valueFactory(ValueType type, ParseRef ref);
+std::unique_ptr<DataRef> createRef(const char* ptr, size_t len);
+
 class Element {
   friend class Elti;
   friend class Map;
@@ -38,7 +41,8 @@ public:
     return key_.key_.c_str();
   }
 
-  void parse(const char*& begin, size_t& offset, ParseRef ref);
+  template<typename Inner>
+  void parse(const Inner& inner, size_t& offset, ParseRef ref);
 
   template<typename Outer>
   void seri(Outer& outer) const;
@@ -66,7 +70,8 @@ public:
   virtual ~Value() = default;
 
 protected:
-  void valueParse(const char*& begin, size_t& offset, ParseRef ref);
+  template<typename Inner>
+  void valueParse(const Inner& inner, size_t& offset, ParseRef ref);
 
   template<typename Outer>
   void valueSeri(Outer& outer) const;
@@ -78,7 +83,18 @@ class Map : public Value {
 protected:
   std::vector<Element> kvs_;
   Value* operator[](const char* attr);
-  void valueParse(const char*& begin, size_t& offset, ParseRef ref);
+
+  template<typename Inner>
+  void valueParse(const Inner& inner, size_t& offset, ParseRef ref) {
+    kvs_.clear();
+    parseLength(inner, offset); //total size.
+    uint64_t count = parseLength(inner, offset);
+    for(uint64_t i = 0; i < count; ++i) {
+      Element tmp;
+      tmp.parse(inner, offset, ref);
+      kvs_.push_back(std::move(tmp));
+    }
+  }
 
   template<typename Outer>
   void valueSeri(Outer& outer) const {
@@ -108,7 +124,19 @@ class Array : public Value {
   friend class ValueWrapper;
 protected:
   std::vector<std::unique_ptr<Value>> vs_;
-  void valueParse(const char*& begin, size_t& offset, ParseRef ref);
+
+  template<typename Inner>
+  void valueParse(const Inner& inner, size_t& offset, ParseRef ref) {
+    vs_.clear();
+    parseLength(inner, offset); //total size.
+    uint64_t count = parseLength(inner, offset);
+    for(uint64_t i = 0; i < count; ++i) {
+      ValueType type = parseValueType(inner, offset);
+      std::unique_ptr<Value> v = valueFactory(type, ref);
+      v->valueParse(inner, offset, ref);
+      vs_.push_back(std::move(v));
+    }
+  }
 
   template<typename Outer>
   void valueSeri(Outer& outer) const {
@@ -144,7 +172,20 @@ private:
   std::vector<uint8_t> data_;
   DataType data_type_;
   Data();
-  void valueParse(const char*& begin, size_t& offset);
+
+  // data := | total_length | data_type | ... bytes ... |
+  //             variant          1      total_length - 1
+  template<typename Inner>
+  void valueParse(const Inner& inner, size_t& offset) {
+    uint64_t size = parseLength(inner, offset);
+    data_type_ = parseDataType(inner, offset);
+    assert(size > 1);
+    size = size - 1;
+    data_.resize(size);
+    memcpy(&(*data_.begin()), inner.curAddr(), size);
+    inner.skip(size);
+    offset += size;
+  }
 
   template<typename Outer>
   void valueSeri(Outer& outer) const {
@@ -203,7 +244,14 @@ class DataRef : public Value {
 
   }
 
-  void valueParse(const char*& begin, size_t& offset);
+  template<typename Inner>
+  void valueParse(const Inner& inner, size_t &offset) {
+    length_ = parseLength(inner, offset) - 1;
+    data_type_ = parseDataType(inner, offset);
+    ptr_ = inner.curAddr();
+    inner.skip(length_);
+    offset += length_;
+  }
 
   template<typename Outer>
   void valueSeri(Outer& outer) const {
@@ -240,6 +288,14 @@ void Element::seri(Outer& outer) const {
   v_->valueSeri(outer);
 }
 
+template<typename Inner>
+void Element::parse(const Inner& inner, size_t& offset, ParseRef ref) {
+  key_.keyParse(inner, offset);
+  ValueType type = parseValueType(inner, offset);
+  v_ = valueFactory(type, ref);
+  v_->valueParse(inner, offset, ref);
+}
+
 template<typename Outer>
 void Value::valueSeri(Outer& outer) const {
   if(type_ == ValueType::Map) {
@@ -260,7 +316,25 @@ void Value::valueSeri(Outer& outer) const {
   }
 }
 
-std::unique_ptr<Value> valueFactory(ValueType type, ParseRef ref);
-
-std::unique_ptr<DataRef> createRef(const char* ptr, size_t len);
+template<typename Inner>
+void Value::valueParse(const Inner& inner, size_t& offset, ParseRef ref) {
+  if(type_ == ValueType::Map) {
+    static_cast<Map*>(this)->valueParse(inner, offset, ref);
+  }
+  else if(type_ == ValueType::Array) {
+    static_cast<Array*>(this)->valueParse(inner, offset, ref);
+  }
+  else if(type_ == ValueType::Data) {
+    assert(ref == ParseRef::Off);
+    static_cast<Data*>(this)->valueParse(inner, offset);
+  }
+  else if(type_ == ValueType::DataRef) {
+    assert(ref == ParseRef::On);
+    static_cast<DataRef*>(this)->valueParse(inner, offset);
+  }
+  else {
+    fprintf(stderr, "valueParse error value type.");
+    exit(-1);
+  }
+}
 }

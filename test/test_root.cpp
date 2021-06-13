@@ -4,6 +4,7 @@
 #include "elti/elti.h"
 #include "elti/factory.h"
 #include "elti/value_wrapper.h"
+#include "elti/inner_wrapper.h"
 
 using namespace elti;
 
@@ -48,9 +49,9 @@ TEST_CASE("root reset test", "[root]") {
   getValueAsMap(vp.get())->set("age", makeData(uint8_t(23)));
   Elti r3(std::move(vp));
   std::string result;
-  r3.seri(result);
+  r3.seriTo<std::string>(result);
 
-  Elti r4 = elti::Elti::parseToElti(result.data()).second;
+  Elti r4 = elti::Elti::parseToElti(InnerWrapper(result)).second;
   ValueWrapper root4 = r4.getRoot();
   REQUIRE(root4["age"].get<uint8_t>() == 23);
   REQUIRE(root4["student"][num(1)].get<std::string>() == "bob");

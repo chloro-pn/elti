@@ -4,6 +4,7 @@
 #include "elti/value.h"
 #include "elti/factory.h"
 #include "elti/elti.h"
+#include "elti/inner_wrapper.h"
 #include <string>
 #include <vector>
 
@@ -17,8 +18,9 @@ TEST_CASE("data test", "[value]") {
   std::string result;
   data.valueSeri(result);
   size_t offset = 0;
-  const char* ptr = result.data();
-  data.valueParse(ptr, offset);
+
+  InnerWrapper iw(result);
+  data.valueParse(iw, offset);
   REQUIRE(offset == result.size());
   REQUIRE(data.get<std::string>() == "hello");
 
@@ -59,7 +61,7 @@ TEST_CASE("dataref test", "[value]") {
     Elti el(std::move(dr));
     std::string result;
     el.seriTo<std::string>(result);
-    el = Elti::parseToElti(result.data(), ParseRef::On).second;
+    el = Elti::parseToElti(InnerWrapper(result), ParseRef::On).second;
     ValueWrapper vw = el.getRoot();
     REQUIRE(vw.getType() == "dataref");
     REQUIRE(vw.get<std::vector<uint8_t>>() == buf);

@@ -18,7 +18,7 @@ int main() {
   std::string result;
   el.seriTo<std::string>(result);
 
-  auto rs = elti::Elti::parseToElti(result.data(), elti::ParseRef::Off);
+  auto rs = elti::Elti::parseToElti(elti::InnerWrapper(result), elti::ParseRef::Off);
   assert(rs.first == result.size());
   elti::ValueWrapper nroot = rs.second.getRoot();
   std::cout << "root type should be map. root type : " << nroot.getType() << std::endl;

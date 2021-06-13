@@ -20,18 +20,20 @@ private:
   }
 
 public:
-  static std::pair<size_t, Elti> parseToElti(const char* ptr, ParseRef ref = ParseRef::Off) {
+  template<typename Inner>
+  static std::pair<size_t, Elti> parseToElti(const Inner& inner, ParseRef ref = ParseRef::Off) {
     Elti r(ref);
-    size_t offset = r.parse(ptr);
+    size_t offset = r.parse(inner);
     return std::make_pair(offset, std::move(r));
   }
 
-  static Positioner parseToPositioner(const char* ptr) {
+  template<typename Inner>
+  static Positioner<Inner> parseToPositioner(Inner& inner) {
     Key key("");
     size_t offset = 0;
-    key.keyParse(ptr, offset);
-    ValueType type = parseValueType(ptr, offset);
-    return Positioner(ptr, type);
+    key.keyParse(inner, offset);
+    ValueType type = parseValueType(inner, offset);
+    return Positioner<Inner>(inner, offset, type);
   }
 
   //外部seri所用构造函数
@@ -55,18 +57,15 @@ public:
     return tmp;
   }
 
-  void seri(std::string& result) const {
-    root_.seri(result);
-  }
-
   template<typename Outer>
   void seriTo(Outer& outer) const {
       root_.seri(outer);
   }
 
-  size_t parse(const char* ptr) {
+  template<typename Inner>
+  size_t parse(const Inner& inner) {
     size_t offset = 0;
-    root_.parse(ptr, offset, ref_);
+    root_.parse(inner, offset, ref_);
     return offset;
   }
 

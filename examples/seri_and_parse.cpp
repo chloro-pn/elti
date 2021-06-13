@@ -49,7 +49,8 @@ int main() {
   std::string result;
   root.seriTo<std::string>(result);
 
-  elti::Positioner pst = elti::Elti::parseToPositioner(result.data());
+  elti::InnerWrapper iw(result);
+  elti::Positioner<elti::InnerWrapper> pst = elti::Elti::parseToPositioner(iw);
   test t = pst["position"].get<test>();
   std::cout << (int)t.floor_ << std::endl;
   return 0;

@@ -22,13 +22,6 @@ Element& Element::operator=(Element &&other) noexcept {
   return *this;
 }
 
-void Element::parse(const char*& begin, size_t& offset, ParseRef ref) {
-  key_.keyParse(begin, offset);
-  ValueType type = parseValueType(begin, offset);
-  v_ = valueFactory(type, ref);
-  v_->valueParse(begin, offset, ref);
-}
-
 Value* Element::getValue() {
   return v_.get();
 }

@@ -8,3 +8,4 @@
 #include "elti/positioner.h"
 #include "elti/value_wrapper.h"
 #include "elti/value.h"
+#include "elti/inner_wrapper.h"
