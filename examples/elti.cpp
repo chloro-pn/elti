@@ -15,7 +15,8 @@ int main() {
   arr->push_back(elti::makeData(2));
   map->set("arrs", std::move(arr));
   elti::Elti el(std::move(map));
-  std::string result = el.seriToString();
+  std::string result;
+  el.seriTo<std::string>(result);
 
   auto rs = elti::Elti::parseToElti(result.data(), elti::ParseRef::Off);
   assert(rs.first == result.size());

@@ -31,25 +31,6 @@ void Value::valueParse(const char*& begin, size_t& offset, ParseRef ref) {
   }
 }
 
-void Value::valueSeri(std::string& result) const {
-  if(type_ == ValueType::Map) {
-    static_cast<const Map*>(this)->valueSeri(result);
-  }
-  else if(type_ == ValueType::Array) {
-    static_cast<const Array*>(this)->valueSeri(result);
-  }
-  else if(type_ == ValueType::Data) {
-    static_cast<const Data*>(this)->valueSeri(result);
-  }
-  else if(type_ == ValueType::DataRef) {
-    static_cast<const DataRef*>(this)->valueSeri(result);
-  }
-  else {
-    fprintf(stderr, "valueSeri error value type.");
-    exit(-1);
-  }
-}
-
 std::string Value::toJson(const BytesEncode& be) const {
   if(type_ == ValueType::Map) {
     return static_cast<const Map*>(this)->toJson(be);
@@ -83,17 +64,6 @@ void Map::valueParse(const char*& begin, size_t& offset, ParseRef ref) {
     CHECK_PTR(begin);
     kvs_.push_back(std::move(tmp));
   }
-}
-
-void Map::valueSeri(std::string& result) const {
-  std::string tmp;
-  uint32_t count = kvs_.size();
-  seriLength(count, tmp);
-  for(auto& each : kvs_) {
-    each.seri(tmp);
-  }
-  seriLength(tmp.size(), result);
-  result.append(tmp);
 }
 
 std::string Map::toJson(const BytesEncode& be) const {
@@ -164,18 +134,6 @@ void Array::valueParse(const char*& begin, size_t& offset, ParseRef ref) {
   }
 }
 
-void Array::valueSeri(std::string& result) const {
-  std::string tmp;
-  uint32_t count = vs_.size();
-  seriLength(count, tmp);
-  for(auto& each : vs_) {
-    seriValueType(each->getType(), tmp);
-    each->valueSeri(tmp);
-  }
-  seriLength(tmp.size(), result);
-  result.append(tmp);
-}
-
 std::string Array::toJson(const BytesEncode& be) const {
   std::string result;
   result.push_back('[');
@@ -237,13 +195,6 @@ void Data::valueParse(const char*& begin, size_t& offset) {
   offset += size;
 }
 
-void Data::valueSeri(std::string& result) const {
-  uint32_t length = data_.size() + 1;
-  seriLength(length, result);
-  seriDataType(data_type_, result);
-  result.append(reinterpret_cast<const char*>(&data_.front()), data_.size());
-}
-
 //Data不携带类型信息，这里如何处理。
 std::string Data::toJson(const BytesEncode& be) const {
   return detail::to_json(data_type_, reinterpret_cast<const char*>(&data_.front()), data_.size(), be);
@@ -261,18 +212,10 @@ void DataRef::valueParse(const char *&begin, size_t &offset) {
   offset += length_;
 }
 
-void DataRef::valueSeri(std::string &result) const {
-  uint32_t length = static_cast<uint32_t>(length_ + 1);
-  seriLength(length, result);
-  seriDataType(data_type_, result);
-  result.append(ptr_, length_);
-}
-
 std::string DataRef::toJson(const BytesEncode& be) const {
   return detail::to_json(data_type_, ptr_, length_, be);
 }
 
-// DataRef的构造不走这个工厂。
 std::unique_ptr<Value> valueFactory(ValueType type, ParseRef ref) {
   std::unique_ptr<Value> v_ = nullptr;
   if(type == ValueType::Map) {

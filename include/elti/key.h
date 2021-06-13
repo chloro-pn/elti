@@ -18,7 +18,13 @@ public:
   }
 
   void keyParse(const char*& ptr, size_t& offset);
-  void keySeri(std::string& str) const;
+  template<typename Outer>
+
+  void keySeri(Outer& outer) const {
+    uint32_t key_length = key_.size();
+    seriLength(key_length, outer);
+    outer.append(key_);
+  }
 
 private:
   std::string key_;

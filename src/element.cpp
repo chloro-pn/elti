@@ -1,4 +1,3 @@
-#include "elti/element.h"
 #include "elti/value.h"
 #include "elti/util.h"
 #include <utility>
@@ -28,12 +27,6 @@ void Element::parse(const char*& begin, size_t& offset, ParseRef ref) {
   ValueType type = parseValueType(begin, offset);
   v_ = valueFactory(type, ref);
   v_->valueParse(begin, offset, ref);
-}
-
-void Element::seri(std::string& result) const {
-  key_.keySeri(result);
-  seriValueType(v_->getType(), result);
-  v_->valueSeri(result);
 }
 
 Value* Element::getValue() {

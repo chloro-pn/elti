@@ -46,7 +46,8 @@ int main() {
   message->set("books", std::move(obj));
 
   elti::Elti root(std::move(message));
-  std::string result = root.seriToString();
+  std::string result;
+  root.seriTo<std::string>(result);
 
   elti::Positioner pst = elti::Elti::parseToPositioner(result.data());
   test t = pst["position"].get<test>();

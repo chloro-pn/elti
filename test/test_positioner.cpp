@@ -14,7 +14,8 @@ TEST_CASE("positioner test", "[positioner]") {
   map->set("test", std::move(array));
   map->set("name", makeData("bob"));
   Elti root(std::move(map));
-  std::string result = root.seriToString();
+  std::string result;
+  root.seriTo<std::string>(result);
   Positioner pst = elti::Elti::parseToPositioner(result.data());
   REQUIRE(pst.getType() == ValueType::Map);
   REQUIRE(pst["name"].getType() == ValueType::Data);

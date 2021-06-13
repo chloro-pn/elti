@@ -57,7 +57,8 @@ TEST_CASE("dataref test", "[value]") {
     std::vector<uint8_t> buf{'h', 'e', 'l', 'l', 'o'};
     auto dr = makeData(buf);
     Elti el(std::move(dr));
-    std::string result = el.seriToString();
+    std::string result;
+    el.seriTo<std::string>(result);
     el = Elti::parseToElti(result.data(), ParseRef::On).second;
     ValueWrapper vw = el.getRoot();
     REQUIRE(vw.getType() == "dataref");

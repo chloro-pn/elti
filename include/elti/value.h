@@ -1,9 +1,9 @@
 ﻿#pragma once
 
 #include "elti/util.h"
-#include "elti/element.h"
 #include "elti/elti_type_trait.h"
 #include "elti/seri_parse.h"
+#include "elti/key.h"
 #include <memory>
 #include <vector>
 #include <string>
@@ -14,6 +14,38 @@
 #include <utility>
 
 namespace elti {
+class Value;
+class Element {
+  friend class Elti;
+  friend class Map;
+
+private:
+  Key key_;
+  std::unique_ptr<Value> v_;
+
+  Value* getValue();
+  const Value* getValue() const;
+
+public:
+  Element();
+  Element(const char* ptr, std::unique_ptr<Value>&& v);
+  Element(const Element&) = delete;
+  Element& operator=(const Element&) = delete;
+  Element(Element&& other) noexcept;
+  Element& operator=(Element&& other) noexcept;
+
+  const char* getKey() const {
+    return key_.key_.c_str();
+  }
+
+  void parse(const char*& begin, size_t& offset, ParseRef ref);
+
+  template<typename Outer>
+  void seri(Outer& outer) const;
+
+  ~Element();
+};
+
 class Value {
   friend class Element;
   friend class Map;
@@ -31,12 +63,13 @@ public:
   }
 
   std::string toJson(const BytesEncode& be) const;
-
   virtual ~Value() = default;
 
 protected:
   void valueParse(const char*& begin, size_t& offset, ParseRef ref);
-  void valueSeri(std::string& result) const;
+
+  template<typename Outer>
+  void valueSeri(Outer& outer) const;
 };
 
 class Map : public Value {
@@ -46,7 +79,18 @@ protected:
   std::vector<Element> kvs_;
   Value* operator[](const char* attr);
   void valueParse(const char*& begin, size_t& offset, ParseRef ref);
-  void valueSeri(std::string& result) const;
+
+  template<typename Outer>
+  void valueSeri(Outer& outer) const {
+    std::string tmp;
+    uint32_t count = kvs_.size();
+    seriLength(count, tmp);
+    for(auto& each : kvs_) {
+      each.seri(tmp);
+    }
+    seriLength(tmp.size(), outer);
+    outer.append(tmp);
+  }
 
 public:
   Map();
@@ -65,7 +109,20 @@ class Array : public Value {
 protected:
   std::vector<std::unique_ptr<Value>> vs_;
   void valueParse(const char*& begin, size_t& offset, ParseRef ref);
-  void valueSeri(std::string& result) const;
+
+  template<typename Outer>
+  void valueSeri(Outer& outer) const {
+    std::string tmp;
+    uint32_t count = vs_.size();
+    seriLength(count, tmp);
+    for(auto& each : vs_) {
+      seriValueType(each->getType(), tmp);
+      each->valueSeri(tmp);
+    }
+    seriLength(tmp.size(), outer);
+    outer.append(tmp);
+  }
+
   Value* operator[](size_t index);
 
 public:
@@ -88,7 +145,14 @@ private:
   DataType data_type_;
   Data();
   void valueParse(const char*& begin, size_t& offset);
-  void valueSeri(std::string& result) const;
+
+  template<typename Outer>
+  void valueSeri(Outer& outer) const {
+    uint32_t length = data_.size() + 1;
+    seriLength(length, outer);
+    seriDataType(data_type_, outer);
+    outer.append(reinterpret_cast<const char*>(&data_.front()), data_.size());
+  }
 
 public:
   template<typename T>
@@ -140,7 +204,15 @@ class DataRef : public Value {
   }
 
   void valueParse(const char*& begin, size_t& offset);
-  void valueSeri(std::string& result) const;
+
+  template<typename Outer>
+  void valueSeri(Outer& outer) const {
+    uint32_t length = static_cast<uint32_t>(length_ + 1);
+    seriLength(length, outer);
+    seriDataType(data_type_, outer);
+    outer.append(ptr_, length_);
+  }
+
   void setPtr(const char* ptr) { ptr_ = ptr; }
   void setDataType(const DataType& dt) { data_type_ = dt; }
   void setLength(size_t length) { length_ = length; }
@@ -160,6 +232,33 @@ public:
   size_t getLength() const { return length_; }
   ~DataRef() = default;
 };
+
+template<typename Outer>
+void Element::seri(Outer& outer) const {
+  key_.keySeri(outer);
+  seriValueType(v_->getType(), outer);
+  v_->valueSeri(outer);
+}
+
+template<typename Outer>
+void Value::valueSeri(Outer& outer) const {
+  if(type_ == ValueType::Map) {
+    static_cast<const Map*>(this)->valueSeri(outer);
+  }
+  else if(type_ == ValueType::Array) {
+    static_cast<const Array*>(this)->valueSeri(outer);
+  }
+  else if(type_ == ValueType::Data) {
+    static_cast<const Data*>(this)->valueSeri(outer);
+  }
+  else if(type_ == ValueType::DataRef) {
+    static_cast<const DataRef*>(this)->valueSeri(outer);
+  }
+  else {
+    fprintf(stderr, "valueSeri error value type.");
+    exit(-1);
+  }
+}
 
 std::unique_ptr<Value> valueFactory(ValueType type, ParseRef ref);
 

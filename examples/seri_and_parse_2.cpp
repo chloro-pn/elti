@@ -30,7 +30,8 @@ int main() {
   t.age = 18;
   t.name = "bob";
   elti::Elti el(t.seriToValue());
-  std::string result = el.seriToString();
+  std::string result;
+  el.seriTo<std::string>(result);
 
   auto rs = elti::Elti::parseToElti(result.data());
   assert(rs.first == result.size());

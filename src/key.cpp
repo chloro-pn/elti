@@ -18,10 +18,4 @@ void Key::keyParse(const char *&begin, size_t& offset) {
   begin += length;
   offset += length;
 }
-
-void Key::keySeri(std::string &result) const {
-  uint32_t key_length = key_.size();
-  seriLength(key_length, result);
-  result.append(key_);
-}
 }

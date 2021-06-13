@@ -1,5 +1,4 @@
 #pragma once
-#include "elti/element.h"
 #include "elti/value.h"
 #include "elti/value_wrapper.h"
 #include "elti/positioner.h"
@@ -60,10 +59,9 @@ public:
     root_.seri(result);
   }
 
-  std::string seriToString() const {
-      std::string result;
-      root_.seri(result);
-      return result;
+  template<typename Outer>
+  void seriTo(Outer& outer) const {
+      root_.seri(outer);
   }
 
   size_t parse(const char* ptr) {

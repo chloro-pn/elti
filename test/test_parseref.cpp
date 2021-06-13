@@ -15,7 +15,8 @@ TEST_CASE("parseref test", "[parse]") {
   arr->push_back(makeData("english"));
   map->set("language", std::move(arr));
   Elti el(std::move(map));
-  std::string result = el.seriToString();
+  std::string result;
+  el.seriTo<std::string>(result);
 
   auto rs = Elti::parseToElti(result.data(), ParseRef::On);
   REQUIRE(rs.first == result.size());
